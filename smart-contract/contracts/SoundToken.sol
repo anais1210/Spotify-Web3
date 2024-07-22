@@ -8,7 +8,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract MyToken is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, AccessControlUpgradeable, UUPSUpgradeable {
+contract SoundToken is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, AccessControlUpgradeable, UUPSUpgradeable {
     bytes32 public constant ARTIST_ROLE = keccak256("ARTIST_ROLE");
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
@@ -24,8 +24,8 @@ contract MyToken is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, A
         _grantRole(ADMIN_ROLE, defaultAdmin);
     }
 
-    function mint(address to, uint256 amount) public onlyRole(ADMIN_ROLE) {
-        _mint(to, amount);
+    function mint(address account, uint256 amount) public onlyRole(ADMIN_ROLE) {
+        _mint(account, amount);
     }
 
     function burn (address to, uint256 amount) public onlyRole(ADMIN_ROLE) {
@@ -34,12 +34,12 @@ contract MyToken is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, A
 
     function _authorizeUpgrade(address newImplementation)
         internal
-        onlyRole(UPGRADER_ROLE)
+        onlyRole(ADMIN_ROLE)
         override
     {}
 
-    function claim (address to, uint256 amount) public onlyRole(ARTIST_ROLE) {
-        _transfer(to, amount);
+    function claim (address from, address to, uint256 amount) public onlyRole(ARTIST_ROLE) {
+        _transfer(from, to, amount);
     }
    
 }
