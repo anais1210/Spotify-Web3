@@ -42,27 +42,28 @@ contract SoundTokenTest is Test {
     }    
     function testBurnSuccess() public {
         instance.initialize(admin);
-        vm.prank(admin);
+        vm.startPrank(admin);
 
         uint256 mintAmount = 100000;
         uint256 burnAmount = 10;
 
         instance.mint(admin, mintAmount);
 
-        vm.prank(admin);
         instance.burn(admin, burnAmount);
         assertEq(instance.balanceOf(admin), (mintAmount - burnAmount));
+        vm.stopPrank();
     }
 
     function testClaimSuccess() public {
         instance.initialize(admin);
-        vm.prank(admin);
+        vm.startPrank(admin);
         instance.grantRole(ARTIST_ROLE, artist);
 
         uint256 mintAmount = 100000000;
         uint256 amount = 100;
-        vm.prank(admin);
         instance.mint(admin, mintAmount);
+        
+        vm.stopPrank();
 
         vm.prank(artist);
         instance.claim(admin, artist, amount);
