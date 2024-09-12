@@ -1,17 +1,17 @@
-import type { Metadata } from "next";
+// import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThirdwebProvider } from "thirdweb/react";
 import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar"; // Import the Sidebar
+import Sidebar from "@/components/Sidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "thirdweb SDK + Next starter",
-  description:
-    "Starter template for using thirdweb SDK with Next.js App router",
-};
+// export const metadata: Metadata = {
+//   title: "thirdweb SDK + Next starter",
+//   description:
+//     "Starter template for using thirdweb SDK with Next.js App router",
+// };
 
 export default function RootLayout({
   children,
@@ -20,16 +20,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className="bg-slate-100 text-slate-700">
         <ThirdwebProvider>
           <div className="flex bg-black h-screen text-white">
-            {/* Sidebar */}
             <Sidebar />
-            {/* Main Content */}
             <div className="flex-1 p-6 overflow-y-auto">
-              {/* Top Bar with Search and User Buttons */}
               <Navbar />
-              {children} {/* Render the main content here */}
+              {children}
             </div>
           </div>
         </ThirdwebProvider>
