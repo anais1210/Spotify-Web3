@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThirdwebProvider } from "thirdweb/react";
 import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar"; // Import the Sidebar
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -20,8 +22,16 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ThirdwebProvider>
-          {children}
-          <Navbar />
+          <div className="flex bg-black h-screen text-white">
+            {/* Sidebar */}
+            <Sidebar />
+            {/* Main Content */}
+            <div className="flex-1 p-6 overflow-y-auto">
+              {/* Top Bar with Search and User Buttons */}
+              <Navbar />
+              {children} {/* Render the main content here */}
+            </div>
+          </div>
         </ThirdwebProvider>
       </body>
     </html>
