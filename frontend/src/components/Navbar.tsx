@@ -1,15 +1,18 @@
 import { FaHome, FaSearch } from "react-icons/fa";
 import { ConnectButton, darkTheme, useActiveAccount } from "thirdweb/react";
 import { client } from "@/app/client";
+import Link from "next/link";
 const Navbar = () => {
   return (
     <div className="flex items-center justify-between bg-black-900 p-4">
       {/* Left Side - Home Button */}
       <div className="flex items-center space-x-4">
         {/* Home Button */}
-        <div className="bg-gray-800 p-4 rounded-full">
-          <FaHome className="text-white w-5 h-5" />
-        </div>
+        <Link href="/" passHref>
+          <div className="bg-gray-800 p-4 rounded-full">
+            <FaHome className="text-white w-5 h-5" />
+          </div>
+        </Link>
       </div>
 
       {/* Middle - Search Bar */}

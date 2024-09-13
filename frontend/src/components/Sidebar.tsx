@@ -1,15 +1,18 @@
 import { FaPlus } from "react-icons/fa";
-
+import Link from "next/link";
+import Image from "next/image";
 const Sidebar = () => {
   return (
     <div className="w-64 p-4 bg-gray-900 flex flex-col justify-between">
       {/* Logo */}
       <div>
         <div className="mb-8">
-          <img
+          <Image
             src="https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg"
             alt="Spotify Logo"
             className="w-32 mx-auto"
+            width={120}
+            height={40}
           />
         </div>
 
@@ -29,11 +32,13 @@ const Sidebar = () => {
       </div>
 
       {/* Subscription Section */}
-      <div className="mt-auto mb-4">
-        <div className="bg-purple-500 text-center py-2 rounded-lg">
-          <p className="text-white">Sign up for free</p>
+      <Link href="/subscription" passHref>
+        <div className="mt-auto mb-4">
+          <div className="bg-purple-500 text-center py-2 rounded-lg">
+            <p className="text-white">Prenium Subscription</p>
+          </div>
         </div>
-      </div>
+      </Link>
     </div>
   );
 };

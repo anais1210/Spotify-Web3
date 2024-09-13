@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { fetchAlbums, addAlbum } from "@/app/api/Albums";
-import { Album } from "@/app/api/Albums";
+import { fetchAlbums } from "@/api/Albums";
+import { Album } from "@/api/Albums";
 import Link from "next/link";
 
 const Albums = () => {
