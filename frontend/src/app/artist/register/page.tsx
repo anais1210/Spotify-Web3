@@ -11,16 +11,13 @@ import { ArtistProps, addArtist } from "@/api/artists.api";
 import { getUserEmail } from "thirdweb/wallets/in-app";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import CSS
+import { useRouter } from "next/navigation";
 
-const ArtistRegistration = ({
-  setUsers,
-}: {
-  setUsers: React.Dispatch<React.SetStateAction<User | null>>;
-}) => {
+const ArtistRegistration = () => {
   const account = useActiveAccount();
   const { isAdmin, isArtist, walletAddress } = useUserRole(account);
   const { status } = useArtistStatus(account);
-  const [confirmedArtist, setConfirmedArtist] = useState("");
+  const router = useRouter();
 
   const [user, setUser] = useState<User>({
     address: account?.address || "",
@@ -37,13 +34,11 @@ const ArtistRegistration = ({
     status: "pending",
   });
   const [uploadStatus, setUploadStatus] = useState<string>("");
-  const [email, setEmail] = useState<string | undefined>("");
 
   useEffect(() => {
     const checkEmail = async () => {
       try {
         const userEmail = await getUserEmail({ client });
-        console.log(userEmail);
         setUser((prevUser) => ({
           ...prevUser,
           email: userEmail || "", // Update the email in the user state
@@ -102,7 +97,10 @@ const ArtistRegistration = ({
     try {
       if (account?.address) {
         const email = await getUserEmail({ client });
-        console.log(email);
+        if (email) {
+          user.email = email;
+          console.log(email);
+        }
         console.log(user.address);
 
         const userSuccess = await addUser(user);
@@ -110,6 +108,7 @@ const ArtistRegistration = ({
 
         if (userSuccess && artistSuccess != null) {
           toast.success("Artist registered successfully!");
+          router.push("/");
         } else {
           throw new Error("Failed to register user or artist.");
         }
@@ -174,7 +173,7 @@ const ArtistRegistration = ({
                   value={user.email}
                   onChange={handleInputChange}
                   required
-                  readOnly={!!user.email}
+                  // readOnly={!user.email}
                   className="w-full px-4 py-2 text-black rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>

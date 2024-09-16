@@ -18,11 +18,10 @@ export const fetchArtists = async (
   setArtists: React.Dispatch<React.SetStateAction<ArtistProps[]>>
 ): Promise<void> => {
   try {
-    const response = await axios.get<ArtistProps[]>(`${api}/Artist/`);
+    const response = await axios.get<ArtistProps[]>(`${api}/artist/`);
     setArtists(response.data);
   } catch (err) {
     console.error(err);
-    toast.error("Failed to fetch artist data");
   }
 };
 
@@ -54,7 +53,6 @@ export const fetchArtistByAddress = async (
     return response.data;
   } catch (err) {
     console.error(err);
-    toast.error("Failed to fetch artist data");
     return null;
   }
 };

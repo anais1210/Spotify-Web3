@@ -15,15 +15,17 @@ const Sidebar = () => {
     <div className="w-64 p-4 bg-gray-900 flex flex-col justify-between">
       {/* Logo */}
       <div>
-        <div className="mb-8">
-          <Image
-            src="https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg"
-            alt="Spotify Logo"
-            className="w-32 mx-auto"
-            width={120}
-            height={40}
-          />
-        </div>
+        <Link href="/" passHref>
+          <div className="mb-8">
+            <Image
+              src="https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg"
+              alt="Spotify Logo"
+              className="w-32 mx-auto"
+              width={120}
+              height={40}
+            />
+          </div>
+        </Link>
 
         {/* Library Section */}
         <div className="mb-8">

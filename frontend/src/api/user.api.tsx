@@ -25,20 +25,29 @@ export const fetchUsers = async (
   setUsers: React.Dispatch<React.SetStateAction<User[]>>
 ): Promise<void> => {
   try {
-    const response = await axios.get<User[]>(`${api}/User/`);
+    const response = await axios.get<User[]>(`${api}/user/`);
     setUsers(response.data);
   } catch (err) {
     console.error(err);
   }
 };
+export const fetchUsersOnRole = async (
+  role: string,
+  setUsers: React.Dispatch<React.SetStateAction<User[]>>
+) => {
+  try {
+    const response = await axios.get<User[]>(`${api}/user/`);
+    const userRole = response.data.filter((user) => user.role === role);
+    console.log(userRole);
+    setUsers(userRole);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+  }
+};
 
-export const addUser = async (
-  UserData: User
-  //   setUsers: React.Dispatch<React.SetStateAction<User | null>>
-): Promise<User | null> => {
+export const addUser = async (UserData: User): Promise<User | null> => {
   try {
     const response = await axios.post<User>(`${api}/user/create`, UserData);
-    // setUsers(response.data);
     console.log(response.data);
     return response.data;
   } catch (err) {
