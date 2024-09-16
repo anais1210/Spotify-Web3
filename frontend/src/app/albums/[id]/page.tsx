@@ -1,10 +1,9 @@
 "use client";
 import { FaPlay, FaPause, FaStepBackward, FaStepForward } from "react-icons/fa";
 import { useState, useEffect } from "react";
-import { fetchAlbumById } from "@/api/Albums";
-import { Album } from "@/api/Albums";
-import { Title } from "@/api/Titles";
-import { fetchTitleById } from "@/api/Titles";
+import { fetchAlbumById } from "@/api/albums.api";
+import { AlbumProps } from "@/api/albums.api";
+import { TitleProps, fetchTitlesById } from "@/api/titles.api";
 import Image from "next/image";
 import Loading from "@/components/Loading";
 
@@ -17,8 +16,8 @@ interface AlbumDetailProps {
 const AlbumPage = ({ params }: AlbumDetailProps) => {
   const [loading, setLoading] = useState(true);
 
-  const [album, setAlbum] = useState<Album | null>(null);
-  const [titles, setTitles] = useState<Title[] | null>([]);
+  const [album, setAlbum] = useState<AlbumProps | null>(null);
+  const [titles, setTitles] = useState<TitleProps[] | null>([]);
 
   useEffect(() => {
     // Fetch album details by album ID
@@ -34,7 +33,7 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
     if (album) {
       const fetchAllTitles = async () => {
         for (const titleId of album.titles) {
-          await fetchTitleById(titleId, setTitles);
+          await fetchTitlesById(titleId, setTitles);
         }
       };
       fetchAllTitles();

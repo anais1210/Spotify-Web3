@@ -1,11 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { fetchAlbums } from "@/api/Albums";
-import { Album } from "@/api/Albums";
+import { fetchAlbums, AlbumProps } from "@/api/albums.api";
 import Link from "next/link";
 
 const Albums = () => {
-  const [albums, setAlbums] = useState<Album[]>([]);
+  const [albums, setAlbums] = useState<AlbumProps[]>([]);
   useEffect(() => {
     fetchAlbums(setAlbums);
   }, []);
