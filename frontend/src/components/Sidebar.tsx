@@ -47,7 +47,7 @@ const Sidebar = () => {
                 <FaPlus />
               </button>
             </Link>
-            <Link href="/admin/verify" passHref>
+            <Link href="/admin/pendingArtist" passHref>
               <button className="mt-4 flex items-center justify-between w-full py-2 px-4 bg-gray-800 rounded-lg">
                 <span>List of Artists</span>
                 <FaListCheck />
