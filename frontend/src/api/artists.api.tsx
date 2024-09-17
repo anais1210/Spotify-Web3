@@ -24,7 +24,46 @@ export const fetchArtists = async (
     console.error(err);
   }
 };
-
+export const fetchArtistStatus = async (
+  status: string,
+  setArtists: React.Dispatch<React.SetStateAction<ArtistProps[]>>
+): Promise<ArtistProps[] | null> => {
+  try {
+    const response = await axios.get<ArtistProps[]>(`${api}/artist/`);
+    const artistStatus = response.data.filter(
+      (artist) => artist.status === status
+    );
+    setArtists(artistStatus);
+    return artistStatus;
+  } catch (error) {
+    console.error("Error fetching artists:", error);
+    return null;
+  }
+};
+export const updateArtist = async (
+  artistData: ArtistProps,
+  setArtists: React.Dispatch<React.SetStateAction<ArtistProps[]>>
+): Promise<ArtistProps | null> => {
+  try {
+    const response = await axios.put<ArtistProps>(
+      `${api}/artist/address${artistData.address}`,
+      artistData
+    );
+    setArtists((prevArtists) => {
+      const updatedArtists = prevArtists.map((artist) => {
+        if (artist.address === artistData.address) {
+          return response.data;
+        }
+        return artist;
+      });
+      return updatedArtists;
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating artist:", error);
+    return null;
+  }
+};
 // Function to add an Artist
 export const addArtist = async (
   ArtistData: ArtistProps

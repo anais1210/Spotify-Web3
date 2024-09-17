@@ -34,14 +34,15 @@ export const fetchUsers = async (
 export const fetchUsersOnRole = async (
   role: string,
   setUsers: React.Dispatch<React.SetStateAction<User[]>>
-) => {
+): Promise<User[] | null> => {
   try {
     const response = await axios.get<User[]>(`${api}/user/`);
     const userRole = response.data.filter((user) => user.role === role);
-    console.log(userRole);
     setUsers(userRole);
+    return userRole;
   } catch (error) {
     console.error("Error fetching users:", error);
+    return null;
   }
 };
 
