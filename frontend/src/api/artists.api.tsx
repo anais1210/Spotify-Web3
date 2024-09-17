@@ -14,14 +14,13 @@ export interface ArtistProps {
 }
 
 // Function to fetch Artists
-export const fetchArtists = async (
-  setArtists: React.Dispatch<React.SetStateAction<ArtistProps[]>>
-): Promise<void> => {
+export const fetchArtists = async (): Promise<ArtistProps[] | null> => {
   try {
     const response = await axios.get<ArtistProps[]>(`${api}/artist/`);
-    setArtists(response.data);
+    return response.data;
   } catch (err) {
     console.error(err);
+    return null;
   }
 };
 export const fetchArtistStatus = async (
@@ -41,23 +40,13 @@ export const fetchArtistStatus = async (
   }
 };
 export const updateArtist = async (
-  artistData: ArtistProps,
-  setArtists: React.Dispatch<React.SetStateAction<ArtistProps[]>>
+  artistData: ArtistProps
 ): Promise<ArtistProps | null> => {
   try {
     const response = await axios.put<ArtistProps>(
-      `${api}/artist/address${artistData.address}`,
+      `${api}/artist/address/${artistData.address}`,
       artistData
     );
-    setArtists((prevArtists) => {
-      const updatedArtists = prevArtists.map((artist) => {
-        if (artist.address === artistData.address) {
-          return response.data;
-        }
-        return artist;
-      });
-      return updatedArtists;
-    });
     return response.data;
   } catch (error) {
     console.error("Error updating artist:", error);
