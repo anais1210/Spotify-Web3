@@ -53,32 +53,43 @@ export class AlbumController {
     res.json(result);
   }
 
+  // async createAlbum(req: express.Request, res: express.Response) {
+  //   const imageFile = req.files?.["img"] ? req.files["img"][0] : null;
+
+  //   const { address, name, author, titles } = req.body;
+
+  //   if (!imageFile) {
+  //     return res.status(400).json({ error: "Image is required." });
+  //   }
+
+  //   const albumData = {
+  //     address: address || undefined,
+  //     name,
+  //     author,
+  //     img: `/album_imgs/${imageFile.filename}`, // Save the path to image
+  //     titles: Array.isArray(titles) ? titles : [titles],
+  //   };
+
+  //   const result = await AlbumService.getInstance().createAlbum(albumData);
+
+  //   if (result === ApiErrorCode.invalidParameters) {
+  //     return res.status(400).end();
+  //   }
+  //   if (result === ApiErrorCode.alreadyExists) {
+  //     return res.status(409).end(); // CONFLICT
+  //   }
+
+  //   res.json(result);
+  // }
   async createAlbum(req: express.Request, res: express.Response) {
-    const imageFile = req.files?.["img"] ? req.files["img"][0] : null;
-
-    const { address, name, author, titles } = req.body;
-
-    if (!imageFile) {
-      return res.status(400).json({ error: "Image is required." });
+    const data = req.body;
+    const result = await AlbumService.getInstance().createAlbum(data);
+    if (result === ApiErrorCode.alreadyExists) {
+      return res.status(409).end();
     }
-
-    const albumData = {
-      address: address || undefined,
-      name,
-      author,
-      img: `/album_imgs/${imageFile.filename}`, // Save the path to image
-      titles: Array.isArray(titles) ? titles : [titles],
-    };
-
-    const result = await AlbumService.getInstance().createAlbum(albumData);
-
     if (result === ApiErrorCode.invalidParameters) {
       return res.status(400).end();
     }
-    if (result === ApiErrorCode.alreadyExists) {
-      return res.status(409).end(); // CONFLICT
-    }
-
     res.json(result);
   }
 

@@ -1,17 +1,23 @@
 import axios from "axios";
-import { toast } from "react-toastify";
-import { AlbumProps } from "@/api/albums.api";
 
 const api = process.env.NEXT_PUBLIC_API_URL;
 
 // Define the Artist type
 export interface ArtistProps {
-  address: string;
-  claimCount: number;
-  status: string;
+  address?: string;
+  claimCount?: number;
+  status?: string;
   reward?: string;
-  album?: AlbumProps[];
+  albums?: string[];
 }
+
+// export interface ArtistUpdate {
+//   address?: string;
+//   claimCount?: number;
+//   status?: string;
+//   reward?: string;
+//   albums?: string[];
+// }
 
 // Function to fetch Artists
 export const fetchArtists = async (): Promise<ArtistProps[] | null> => {

@@ -5,8 +5,12 @@ import { ArtistProps, fetchArtists, updateArtist } from "@/api/artists.api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Toast notifications
 import { ToastContainer } from "react-toastify";
-
+import { prepareContractCall } from "thirdweb";
+import { contractStaff as contract } from "@/contracts/contracts";
+import { darkTheme, TransactionButton, useActiveAccount } from "thirdweb/react";
 const PendingArtists = () => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const account = useActiveAccount();
   const [pendingUserArtists, setPendingUserArtists] = useState<
     (User & ArtistProps)[]
   >([]);
@@ -74,6 +78,7 @@ const PendingArtists = () => {
             <tr className="bg-gray-700">
               <th className="py-3 px-6 text-left font-semibold">Firstname</th>
               <th className="py-3 px-6 text-left font-semibold">Lastname</th>
+              <th className="py-3 px-6 text-left font-semibold">Address</th>
               <th className="py-3 px-6 text-left font-semibold">Email</th>
               <th className="py-3 px-6 text-left font-semibold">Profile</th>
               <th className="py-3 px-6 text-center font-semibold">Actions</th>
@@ -88,6 +93,7 @@ const PendingArtists = () => {
                 >
                   <td className="py-3 px-6">{artist.firstname}</td>
                   <td className="py-3 px-6">{artist.lastname}</td>
+                  <td className="py-3 px-6">{artist.address}</td>
                   <td className="py-3 px-6">{artist.email}</td>
                   <td className="py-3 px-6">
                     <img
@@ -99,12 +105,26 @@ const PendingArtists = () => {
                   <td className="py-3 px-6 text-center">
                     {artist.status === "pending" ? (
                       <>
-                        <button
-                          onClick={() => handleResponse(artist, "confirmed")}
-                          className="bg-green-500 text-black px-4 py-2 rounded-full mr-2 hover:bg-green-400"
+                        <TransactionButton
+                          transaction={() =>
+                            prepareContractCall({
+                              contract: contract,
+                              method:
+                                "function addStaff(address account, string memory role)",
+                              params: [artist.address, "artist"],
+                            })
+                          }
+                          onTransactionConfirmed={async () => {
+                            alert("Tier added successfully!");
+                            setIsModalOpen(false);
+                            handleResponse(artist, "confirmed");
+                          }}
+                          onError={(error) => alert(`Error: ${error.message}`)}
+                          theme={darkTheme()}
+                          className="bg-green-500 text-black px-4 py-2 rounded-full hover:bg-green-400"
                         >
                           Confirm
-                        </button>
+                        </TransactionButton>
                         <button
                           onClick={() => handleResponse(artist, "rejected")}
                           className="bg-red-500 text-black px-4 py-2 rounded-full hover:bg-red-400"

@@ -5,12 +5,12 @@ const api = process.env.NEXT_PUBLIC_API_URL;
 
 // Define the Album type
 export interface AlbumProps {
-  _id: string;
-  address: string;
+  _id?: string;
+  address?: string;
   name: string;
   author: string;
   img: string;
-  titles: string[];
+  titles?: string[];
 }
 
 // Function to fetch albums
@@ -27,17 +27,19 @@ export const fetchAlbums = async (
 
 // Function to add an album
 export const addAlbum = async (
-  albumData: AlbumProps,
-  setAlbums: React.Dispatch<React.SetStateAction<AlbumProps[]>>
-): Promise<void> => {
+  AlbumData: AlbumProps
+): Promise<AlbumProps | null> => {
   try {
-    const response = await axios.post<AlbumProps>(`${api}/album/`, albumData);
-    setAlbums((prevAlbums) => [...prevAlbums, response.data]); // Update the state with the new album
+    const response = await axios.post<AlbumProps>(
+      `${api}/album/create`,
+      AlbumData
+    );
+    return response.data;
   } catch (err) {
     console.error(err);
+    return null;
   }
 };
-
 export const fetchAlbumById = async (
   id: string,
   setAlbum: React.Dispatch<React.SetStateAction<AlbumProps | null>>

@@ -34,6 +34,7 @@ export class ArtistService {
     update: ArtistUpdate
   ): Promise<ArtistDocument | ApiErrorCode> {
     try {
+      console.log(update);
       const artist = await ArtistModel.findOneAndUpdate(
         { address: address },
         {
@@ -41,7 +42,7 @@ export class ArtistService {
           $set: {
             claimCount: update.claimCount,
             status: update.status,
-            currentReward: update.currentReward,
+            rewards: update.rewards,
           },
         },
 
@@ -126,8 +127,8 @@ export class ArtistService {
     if (search.status !== undefined) {
       filter.status = { $regex: search.status, $options: "i" };
     }
-    if (search.currentReward !== undefined) {
-      filter.currentReward = { $regex: search.currentReward, $options: "i" }; // This was previously incorrect
+    if (search.rewards !== undefined) {
+      filter.currentReward = { $regex: search.rewards, $options: "i" }; // This was previously incorrect
     }
 
     const query = ArtistModel.find(filter);
@@ -146,20 +147,20 @@ export interface ArtistCreate {
   readonly address: string;
   readonly claimCount: number;
   readonly status: string;
-  readonly currentReward: string;
+  readonly rewards: string;
   readonly album: string[];
 }
 
 export interface ArtistSearch {
   readonly address?: string;
   readonly status?: string;
-  readonly currentReward?: string;
+  readonly rewards?: string;
   readonly limit?: number;
   readonly offset?: number;
 }
 export interface ArtistUpdate {
   readonly claimCount?: number;
   readonly status?: string;
-  readonly currentReward?: string;
+  readonly rewards?: string;
   readonly albums?: string[];
 }
