@@ -1,22 +1,30 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { upload } from "thirdweb/storage";
 import { client } from "@/app/client";
 import { addAlbum, AlbumProps } from "@/api/albums.api";
 import { toast } from "react-toastify";
-import { ConnectButton, darkTheme, useActiveAccount } from "thirdweb/react";
+import { contractFactory as contract } from "@/contracts/contracts";
+import {
+  ConnectButton,
+  darkTheme,
+  TransactionButton,
+  useActiveAccount,
+} from "thirdweb/react";
 import { useUserRole, useArtistStatus } from "@/contracts/checkRole";
 import { ArtistProps, updateArtist } from "@/api/artists.api";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import "react-toastify/dist/ReactToastify.css";
+import { prepareContractCall } from "thirdweb";
 
 const CreateAlbum = () => {
   const account = useActiveAccount();
   const { isArtist } = useUserRole(account);
   const { status } = useArtistStatus(account);
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   // Album state
   const [album, setAlbum] = useState<AlbumProps>({
@@ -70,8 +78,7 @@ const CreateAlbum = () => {
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   // Form submission handler
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
       const albumSuccess = await addAlbum(album);
       if (albumSuccess && artist.address && albumSuccess._id) {
@@ -81,7 +88,8 @@ const CreateAlbum = () => {
           albums: [albumSuccess._id],
         });
         toast.success("Album created successfully!");
-        // router.push("/");
+        router.push("/");
+        console.log("ok");
       } else {
         throw new Error("Failed to register album or update artist.");
       }
@@ -98,7 +106,7 @@ const CreateAlbum = () => {
           <h1 className="text-4xl font-bold mb-8 text-center">
             Create An Album
           </h1>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
             <div>
               <label htmlFor="name" className="block text-lg mb-2">
                 Album's Name
@@ -128,14 +136,14 @@ const CreateAlbum = () => {
               />
             </div>
             <div>
-              <label className="block text-lg mb-2">Album Cover</label>
+              <label className="block text-lg mb-2">Profile Picture</label>
               <div
                 {...getRootProps()}
                 className="border-dashed border-2 border-gray-400 p-6 text-center cursor-pointer bg-gray-700 rounded-lg"
               >
                 <input {...getInputProps()} />
                 <p>
-                  Drag and drop the album's cover here, or click to select one
+                  Drag and drop a profile picture here, or click to select one
                 </p>
               </div>
               {uploadStatus && (
@@ -151,12 +159,31 @@ const CreateAlbum = () => {
               )}
             </div>
             <div className="text-center">
-              <button
-                type="submit"
-                className="bg-green-500 text-black px-6 py-3 rounded-full font-semibold hover:bg-green-400 transition-colors duration-300 flex items-center justify-center"
+              <TransactionButton
+                transaction={async () => {
+                  return prepareContractCall({
+                    contract: contract,
+                    method:
+                      "function createAlbum(string memory name, string memory symbol, address staffContractAddress)",
+                    params: [
+                      album.name,
+                      album.name,
+                      process.env.STAFF_ADDRESS ||
+                        "0x5604b74F621f030926712D8b0F76C57040e0231C",
+                    ],
+                  });
+                }}
+                onTransactionConfirmed={async () => {
+                  alert("Album created successfully!");
+                  setIsModalOpen(false);
+                  await handleSubmit();
+                }}
+                onError={(error) => alert(`${error.message}`)}
+                theme={darkTheme()}
+                className="bg-green-500 text-black px-4 py-2 rounded-full hover:bg-green-400"
               >
-                Create <FaPlus className="ml-2" />
-              </button>
+                Create
+              </TransactionButton>
             </div>
           </form>
         </div>
@@ -175,4 +202,5 @@ const CreateAlbum = () => {
     </div>
   );
 };
+
 export default CreateAlbum;

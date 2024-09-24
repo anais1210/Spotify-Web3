@@ -10,7 +10,6 @@ import { useActiveAccount } from "thirdweb/react";
 const Sidebar = () => {
   const account = useActiveAccount();
   const { isAdmin, isArtist, walletAddress } = useUserRole(account);
-  console.log(isArtist);
 
   return (
     <div className="w-64 p-4 bg-gray-900 flex flex-col justify-between">
