@@ -53,47 +53,14 @@ export class TitleController {
   }
 
   async createTitle(req: express.Request, res: express.Response) {
-    // Access uploaded files
-    const audioFile = req.files?.["audio"] ? req.files["audio"][0] : null;
-    const imageFile = req.files?.["album_img"]
-      ? req.files["album_img"][0]
-      : null;
-
-    // Access other form data
-    const { address, name, author, genre, album, tokenId } = req.body;
-
-    // Check if files were uploaded
-    if (!audioFile || !imageFile) {
-      return res
-        .status(400)
-        .json({ error: "Both audio and image files are required." });
+    const data = req.body;
+    const result = await TitleService.getInstance().createTitle(data);
+    if (result === ApiErrorCode.alreadyExists) {
+      return res.status(409).end();
     }
-
-    // Prepare the data object
-    const titleData = {
-      address: address || undefined,
-      name,
-      author,
-      genre,
-      audio: `/music/${audioFile.filename}`,
-      album_img: `/imgs/${imageFile.filename}`, // Save the path to image
-      album: album || undefined,
-      tokenId: tokenId ? parseInt(tokenId, 10) : undefined, // Ensure tokenId is an integer
-    };
-
-    console.log(titleData); // Log titleData for debugging
-
-    // Call the service to create the title
-    const result = await TitleService.getInstance().createTitle(titleData);
-
-    // Handle potential errors
     if (result === ApiErrorCode.invalidParameters) {
       return res.status(400).end();
     }
-    if (result === ApiErrorCode.alreadyExists) {
-      return res.status(409).end(); // CONFLICT
-    }
-
     res.json(result);
   }
 

@@ -12,14 +12,6 @@ export interface ArtistProps {
   albums?: string[];
 }
 
-// export interface ArtistUpdate {
-//   address?: string;
-//   claimCount?: number;
-//   status?: string;
-//   reward?: string;
-//   albums?: string[];
-// }
-
 // Function to fetch Artists
 export const fetchArtists = async (): Promise<ArtistProps[] | null> => {
   try {
@@ -63,14 +55,12 @@ export const updateArtist = async (
 // Function to add an Artist
 export const addArtist = async (
   ArtistData: ArtistProps
-  // setArtists: React.Dispatch<React.SetStateAction<ArtistProps>>
 ): Promise<ArtistProps | null> => {
   try {
     const response = await axios.post<ArtistProps>(
       `${api}/artist/create`,
       ArtistData
     );
-    // setArtists(response.data);
     return response.data;
   } catch (err) {
     console.error(err);

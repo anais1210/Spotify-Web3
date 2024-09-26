@@ -57,11 +57,11 @@ export class TitleService {
 
 export interface TitleCreate {
   readonly address?: string | null;
-  readonly name: string;
-  readonly author: string;
-  readonly genre: string;
-  readonly audio: string;
-  readonly album_img: string;
+  readonly name?: string;
+  readonly author?: string;
+  readonly genre?: string;
+  readonly audio?: string;
+  readonly album_img?: string;
   readonly tokenId?: number | null;
   readonly album?: string | null;
 }
