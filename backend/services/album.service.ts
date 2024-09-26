@@ -59,7 +59,6 @@ export class AlbumService {
     update: AlbumUpdate
   ): Promise<AlbumDocument | ApiErrorCode> {
     try {
-      console.log(id);
       const album = await AlbumModel.findByIdAndUpdate(
         id,
         {

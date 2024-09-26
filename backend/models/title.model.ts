@@ -6,9 +6,7 @@ export interface TitleProps {
   address: string;
   name: string;
   author: string;
-  genre: string;
   audio: string;
-  album_img: string;
   tokenID: number;
   album: string;
 }
@@ -27,13 +25,8 @@ const titleSchema = new Schema(
     author: {
       type: Schema.Types.String,
     },
-    genre: {
-      type: Schema.Types.String,
-    },
+
     audio: {
-      type: Schema.Types.String,
-    },
-    album_img: {
       type: Schema.Types.String,
     },
     tokenId: {
