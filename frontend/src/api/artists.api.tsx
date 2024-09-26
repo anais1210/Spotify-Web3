@@ -4,6 +4,7 @@ const api = process.env.NEXT_PUBLIC_API_URL;
 
 // Define the Artist type
 export interface ArtistProps {
+  _id?: string;
   address?: string;
   claimCount?: number;
   status?: string;

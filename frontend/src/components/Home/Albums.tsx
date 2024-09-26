@@ -5,9 +5,21 @@ import Link from "next/link";
 
 const Albums = () => {
   const [albums, setAlbums] = useState<AlbumProps[]>([]);
+
   useEffect(() => {
-    fetchAlbums(setAlbums);
-  }, []);
+    const fetchAllAlbums = async () => {
+      try {
+        const fetchedAlbums = await fetchAlbums();
+        if (fetchedAlbums) {
+          setAlbums(fetchedAlbums); // Set the artists' state if data is fetched.
+        }
+      } catch (error) {
+        console.error("Error fetching artists:", error);
+      }
+    };
+
+    fetchAllAlbums();
+  }, []); // Empty dependency array to fetch artists only on component mount.
 
   return (
     <div className="mt-8">

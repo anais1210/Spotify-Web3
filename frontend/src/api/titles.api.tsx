@@ -3,14 +3,15 @@ import { toast } from "react-toastify";
 
 const api = process.env.NEXT_PUBLIC_API_URL;
 export interface TitleProps {
-  address: string;
-  name: string;
-  author: string;
-  genre: string;
-  audio: string;
-  album_img: string;
-  tokenID: number;
-  album: string;
+  _id?: string;
+  address?: string;
+  name?: string;
+  author?: string;
+  genre?: string;
+  audio?: string;
+  album_img?: string;
+  tokenID?: number;
+  album?: string;
 }
 
 export const fetchTitlesById = async (
@@ -29,5 +30,14 @@ export const fetchTitlesById = async (
     });
   } catch (err) {
     console.error(err);
+  }
+};
+export const fetchTitles = async (): Promise<TitleProps[] | null> => {
+  try {
+    const response = await axios.get<TitleProps[]>(`${api}/title/`);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    return null;
   }
 };

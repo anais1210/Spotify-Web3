@@ -8,6 +8,7 @@ const api = process.env.NEXT_PUBLIC_API_URL;
 
 // Define the User type
 export interface User {
+  _id?: string;
   address: string;
   lastname: string;
   firstname: string;
@@ -21,14 +22,13 @@ export interface User {
 }
 
 // Function to fetch Users
-export const fetchUsers = async (
-  setUsers: React.Dispatch<React.SetStateAction<User[]>>
-): Promise<void> => {
+export const fetchUsers = async (): Promise<User[] | null> => {
   try {
     const response = await axios.get<User[]>(`${api}/user/`);
-    setUsers(response.data);
+    return response.data;
   } catch (err) {
     console.error(err);
+    return null;
   }
 };
 export const fetchUsersOnRole = async (

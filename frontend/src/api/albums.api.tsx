@@ -7,21 +7,20 @@ const api = process.env.NEXT_PUBLIC_API_URL;
 export interface AlbumProps {
   _id?: string;
   address?: string;
-  name: string;
-  author: string;
-  img: string;
+  name?: string;
+  author?: string;
+  img?: string;
   titles?: string[];
 }
 
 // Function to fetch albums
-export const fetchAlbums = async (
-  setAlbums: React.Dispatch<React.SetStateAction<AlbumProps[]>>
-): Promise<void> => {
+export const fetchAlbums = async (): Promise<AlbumProps[] | null> => {
   try {
     const response = await axios.get<AlbumProps[]>(`${api}/album/`);
-    setAlbums(response.data);
+    return response.data;
   } catch (err) {
     console.error(err);
+    return null;
   }
 };
 

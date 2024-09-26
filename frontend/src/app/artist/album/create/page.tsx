@@ -135,7 +135,7 @@ const CreateAlbum = () => {
                 className="w-full px-4 py-2 text-black rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-lg mb-2">Profile Picture</label>
               <div
                 {...getRootProps()}
@@ -157,11 +157,11 @@ const CreateAlbum = () => {
                   {uploadStatus}
                 </p>
               )}
-            </div>
+            </div> */}
             <div className="text-center">
               <TransactionButton
                 transaction={async () => {
-                  return prepareContractCall({
+                  const tx = prepareContractCall({
                     contract: contract,
                     method:
                       "function createAlbum(string memory name, string memory symbol, address staffContractAddress)",
@@ -172,6 +172,8 @@ const CreateAlbum = () => {
                         "0x5604b74F621f030926712D8b0F76C57040e0231C",
                     ],
                   });
+                  console.log("tx", tx);
+                  return tx;
                 }}
                 onTransactionConfirmed={async () => {
                   alert("Album created successfully!");
