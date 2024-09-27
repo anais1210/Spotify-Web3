@@ -12,9 +12,9 @@ import { AlbumProps } from "@/api/albums.api";
 import { TitleProps, fetchTitleById } from "@/api/titles.api";
 import Loading from "@/components/Loading";
 import { useActiveAccount } from "thirdweb/react";
-import Link from "next/link"; // Import Link for navigation
 import AddSong from "@/components/AddSong";
 import Modal from "@/components/Modal";
+import CustomAudioPlayer from "@/components/CustomAudioPlayer";
 
 interface AlbumDetailProps {
   params: {
@@ -27,11 +27,16 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
   const [loading, setLoading] = useState(true);
   const [album, setAlbum] = useState<AlbumProps | null>(null);
   const [titles, setTitles] = useState<TitleProps[]>([]);
+  const [titleName, setTitleName] = useState("");
   const [owner, setOwner] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSong, setSelectedSong] = useState<string | null>(null); // State for selected song
+  const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
+
+  // TO DO: FIX THE PLAYER BUTTON
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    // Fetch album details by album ID
     const fetchAlbum = async () => {
       const resultAlbum = await fetchAlbumById(params.id);
       if (resultAlbum) {
@@ -76,12 +81,32 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
     console.log("New song data:", newSong);
     setIsModalOpen(false); // Close the modal after submission
   };
+
+  const handleSongClick = (songUrl: string, title: string) => {
+    setSelectedSong(songUrl);
+    setTitleName(title);
+    setIsPlaying(true);
+  };
+  const handlePlayAlbum = () => {
+    if (titles.length > 0) {
+      const firstSong = titles[0];
+      setSelectedSong(firstSong.audio!);
+      setTitleName(firstSong.name!);
+      setIsPlaying(true);
+    }
+  };
+  const handleSongChange = (index: number) => {
+    setSelectedSong(titles[index].audio!);
+    setTitleName(titles[index].name!);
+    setIsPlaying(true);
+    setCurrentSongIndex(index);
+  };
   if (!album || !titles) {
     return <Loading />;
   }
 
   return (
-    <div className="flex flex-col h-screen bg-black text-white">
+    <div className="flex flex-col h-screen bg-black text-white px-8">
       {/* Album Header */}
       <div className="p-6 flex justify-between items-start">
         <div className="flex items-center">
@@ -96,7 +121,7 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
             <p className="text-sm uppercase text-gray-400">Album</p>
             <h1 className="text-6xl font-bold">{album.name}</h1>
             <p className="text-lg text-gray-400 mt-2">
-              {album.author} • {album.titles.length} songs
+              {album.author} • {album.titles!.length} songs
             </p>
           </div>
         </div>
@@ -114,7 +139,10 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
 
       {/* Play Button and Options */}
       <div className="flex items-center mb-6">
-        <button className="bg-green-500 hover:bg-green-400 text-black py-3 px-6 rounded-full text-2xl font-semibold flex items-center transition duration-200 ease-in-out transform hover:scale-105">
+        <button
+          onClick={handlePlayAlbum}
+          className="bg-green-500 hover:bg-green-400 text-black py-3 px-6 rounded-full text-2xl font-semibold flex items-center transition duration-200 ease-in-out transform hover:scale-105"
+        >
           <span className="mr-2">▶</span> Play
         </button>
       </div>
@@ -132,18 +160,41 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
             {titles.map((song, index) => (
               <tr
                 key={song._id}
-                className="hover:bg-gray-800 transition duration-200 ease-in-out transform hover:scale-105" // Add hover effect
+                className="hover:bg-gray-800 transition duration-200 ease-in-out transform hover:scale-105 p-5 rounded-full"
               >
                 <td className="py-2">{index + 1}</td>
+                {/* <td className="py-2">{song.audio}</td> */}
                 <td className="py-2 text-lg hover:text-green-400 transition duration-200 ease-in-out">
-                  {song.name}
+                  <button
+                    onClick={() => handleSongClick(song.audio!, song.name!)}
+                    className="w-full text-left"
+                  >
+                    {song.name}
+                  </button>
                 </td>
-                {/* <td className="py-2 text-right">{song.duration}</td> */}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      {/* Audio Player */}
+      {selectedSong && (
+        <div className="fixed bottom-0 left-0 right-0 p-4">
+          <CustomAudioPlayer
+            src={selectedSong}
+            album={{
+              _id: album._id,
+              img: album.img,
+              name: album.name,
+              author: album.author,
+            }}
+            title={titleName}
+            songs={titles}
+            currentSongIndex={currentSongIndex}
+            onSongChange={handleSongChange}
+          />
+        </div>
+      )}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <h2 className="text-xl mb-4">Add a New Song</h2>
