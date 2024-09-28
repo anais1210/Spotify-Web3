@@ -1,5 +1,5 @@
 "use client";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaUser } from "react-icons/fa";
 import { FaListCheck } from "react-icons/fa6";
 
 import Link from "next/link";
@@ -26,6 +26,17 @@ const Sidebar = () => {
             />
           </div>
         </Link>
+        <div className="mb-8">
+          <h2 className="text-xl font-bold">Account</h2>
+          {isArtist && (
+            <Link href={`/profile/${account?.address}`}>
+              <button className="mt-4 flex items-center justify-between w-full py-2 px-4 bg-gray-800 rounded-lg">
+                <span>Profile</span>
+                <FaUser />
+              </button>
+            </Link>
+          )}
+        </div>
 
         {/* Library Section */}
         {isArtist && (
@@ -37,9 +48,11 @@ const Sidebar = () => {
                 <FaPlus />
               </button>
             </Link>
-            <button className="mt-4 flex items-center justify-between w-full py-2 px-4 bg-gray-800 rounded-lg">
-              <span>Browse podcasts</span>
-            </button>
+            <Link href={`/artist/album/list/${account?.address}`}>
+              <button className="mt-4 flex items-center justify-between w-full py-2 px-4 bg-gray-800 rounded-lg">
+                <span>My Albums</span>
+              </button>
+            </Link>
           </div>
         )}
         {isAdmin && (

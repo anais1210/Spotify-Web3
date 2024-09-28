@@ -9,8 +9,6 @@ import { ConnectButton, darkTheme, useActiveAccount } from "thirdweb/react";
 import { useUserRole, useArtistStatus } from "@/contracts/checkRole";
 import { ArtistProps, addArtist } from "@/api/artists.api";
 import { getUserEmail } from "thirdweb/wallets/in-app";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import CSS
 import { useRouter } from "next/navigation";
 
 const ArtistRegistration = () => {

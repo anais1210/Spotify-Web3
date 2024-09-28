@@ -81,15 +81,13 @@ export const fetchUserByAddress = async (
 
 export const updateUser = async (
   address: string,
-  userData: User, // Accept the user data to be updated
-  setUser: React.Dispatch<React.SetStateAction<User | null>>
+  userData: User // Accept the user data to be updated
 ): Promise<User | null> => {
   try {
     const response = await axios.patch<User>(
       `${api}/user/update/${address}`,
       userData
     );
-    setUser(response.data);
     return response.data;
   } catch (err) {
     console.error(err);

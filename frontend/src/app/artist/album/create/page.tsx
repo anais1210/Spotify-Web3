@@ -1,7 +1,5 @@
 "use client";
 import { useState, useCallback } from "react";
-import { useDropzone } from "react-dropzone";
-import { upload } from "thirdweb/storage";
 import { client } from "@/app/client";
 import { addAlbum, AlbumProps } from "@/api/albums.api";
 import { toast } from "react-toastify";
@@ -69,7 +67,7 @@ const CreateAlbum = () => {
             albums: [albumSuccess._id],
           });
           toast.success("Album created successfully!");
-          router.push("/");
+          router.push(`/artist/album/list/${artistAddress}`);
         }
       } else {
         throw new Error("Failed to register album or update artist.");
@@ -116,7 +114,7 @@ const CreateAlbum = () => {
                 type="text"
                 id="author"
                 name="author"
-                value={album.author} // Keep the key name consistent with the state
+                value={album.author}
                 onChange={handleInputChange}
                 required
                 className="w-full px-4 py-2 text-black rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"

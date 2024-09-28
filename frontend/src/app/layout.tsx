@@ -4,7 +4,8 @@ import "./globals.css";
 import { ThirdwebProvider } from "thirdweb/react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
-import Player from "@/components/Player";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Make sure to include the styles
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,9 +29,9 @@ export default function RootLayout({
             <div className="flex-1 p-6 overflow-y-auto">
               <Navbar />
               {children}
-              {/* <Player /> */}
             </div>
           </div>
+          <ToastContainer />
         </ThirdwebProvider>
       </body>
     </html>

@@ -11,6 +11,7 @@ contract AlbumFactory is UUPSUpgradeable{
 
     address[] public deployedAlbums;
     Staff private staffContract;
+    SoundNFT[] public deployedSoundNFT;
     
     modifier onlyArtist() {
         require(keccak256(abi.encodePacked(staffContract.isStaff(msg.sender))) == keccak256(abi.encodePacked("artist")), "Caller is not an artist");
@@ -27,12 +28,15 @@ contract AlbumFactory is UUPSUpgradeable{
     }
 
     function createAlbum(string memory name, string memory symbol, address staffContractAddress) public onlyArtist returns (address){
+        // SoundNFTCollection newAlbum = new SoundNFT(staffContractAddress, name, symbol);
         SoundNFT newAlbum = new SoundNFT();
         newAlbum.initialize(staffContractAddress, name, symbol);
         deployedAlbums.push(address(newAlbum));
         return address(newAlbum);
     }
-
+    function getCollections() external view returns (SoundNFT[] memory){
+        return deployedSoundNFT;
+    }
     function _authorizeUpgrade(address newImplementation) internal onlyStaff override {}
 
 }

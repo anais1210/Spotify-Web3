@@ -4,7 +4,7 @@ import { fetchUsersOnRole, User } from "@/api/user.api";
 import { ArtistProps, fetchArtists, updateArtist } from "@/api/artists.api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Toast notifications
-import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { prepareContractCall } from "thirdweb";
 import { contractStaff as contract } from "@/contracts/contracts";
 import { darkTheme, TransactionButton, useActiveAccount } from "thirdweb/react";
@@ -18,10 +18,7 @@ const PendingArtists = () => {
   useEffect(() => {
     const fetchAllArtists = async () => {
       try {
-        // Fetch all users with the role "artist"
         const users = await fetchUsersOnRole("artist");
-
-        // Fetch all artists
         const artists = await fetchArtists();
 
         // Combine the user and artist data based on their address
@@ -70,7 +67,6 @@ const PendingArtists = () => {
 
   return (
     <div className="p-8 min-h-screen bg-gray-900 text-white">
-      <ToastContainer />
       <h2 className="text-3xl font-bold mb-8">Pending Artists</h2>
       <div className="overflow-x-auto">
         <table className="w-full table-auto border-collapse">

@@ -1,11 +1,5 @@
 "use client";
-import {
-  FaPlay,
-  FaPause,
-  FaStepBackward,
-  FaStepForward,
-  FaPlus,
-} from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { fetchAlbumById } from "@/api/albums.api";
 import { AlbumProps } from "@/api/albums.api";
@@ -33,7 +27,7 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
   const [selectedSong, setSelectedSong] = useState<string | null>(null); // State for selected song
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
 
-  // TO DO: FIX THE PLAYER BUTTON
+  // TODO: FIX THE PLAYER BUTTON
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
@@ -163,7 +157,6 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
                 className="hover:bg-gray-800 transition duration-200 ease-in-out transform hover:scale-105 p-5 rounded-full"
               >
                 <td className="py-2">{index + 1}</td>
-                {/* <td className="py-2">{song.audio}</td> */}
                 <td className="py-2 text-lg hover:text-green-400 transition duration-200 ease-in-out">
                   <button
                     onClick={() => handleSongClick(song.audio!, song.name!)}

@@ -94,6 +94,7 @@ const CustomAudioPlayer = ({
     onSongChange(prevIndex);
   };
   return (
+    // TODO:FIX THE PADDING STICK ON BOTTOM
     <div className="flex items-center bg-black p-6 rounded-lg w-full ">
       {/* Album Art */}
       <img
