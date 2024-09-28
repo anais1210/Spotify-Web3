@@ -1,13 +1,14 @@
 import * as mongoose from "mongoose";
 import { Schema, Document } from "mongoose";
 import { AlbumProps } from "./album.model";
+import { RewardProps } from "./reward.model";
 
 export interface ArtistProps {
   _id: string;
   address: string;
   claimCount: number;
   status: string;
-  reward: string;
+  rewards: RewardProps[];
   albums: AlbumProps[];
 }
 

@@ -9,6 +9,7 @@ import path from "path";
 import {
   AlbumController,
   ArtistController,
+  RewardController,
   SubsController,
   TitleController,
   UserController,
@@ -38,6 +39,7 @@ async function startServer(): Promise<void> {
   app.use("/user", UserController.getInstance().buildRouter());
   app.use("/sub", SubsController.getInstance().buildRouter());
   app.use("/artist", ArtistController.getInstance().buildRouter());
+  app.use("/artist/reward/", RewardController.getInstance().buildRouter());
   app.listen(process.env.PORT, async function () {
     await bootstrap();
     console.log("Server started on port " + process.env.PORT);

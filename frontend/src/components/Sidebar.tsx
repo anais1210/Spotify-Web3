@@ -1,6 +1,6 @@
 "use client";
 import { FaPlus, FaUser } from "react-icons/fa";
-import { FaListCheck } from "react-icons/fa6";
+import { FaListCheck, FaMedal, FaMusic } from "react-icons/fa6";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -26,17 +26,26 @@ const Sidebar = () => {
             />
           </div>
         </Link>
-        <div className="mb-8">
-          <h2 className="text-xl font-bold">Account</h2>
-          {isArtist && (
+        {account?.address && (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold">Account</h2>
             <Link href={`/profile/${account?.address}`}>
               <button className="mt-4 flex items-center justify-between w-full py-2 px-4 bg-gray-800 rounded-lg">
                 <span>Profile</span>
+
                 <FaUser />
               </button>
             </Link>
-          )}
-        </div>
+            {isArtist && (
+              <Link href={`/artist/reward/${account?.address}`}>
+                <button className="mt-4 flex items-center justify-between w-full py-2 px-4 bg-gray-800 rounded-lg">
+                  <span>Rewards</span>
+                  <FaMedal />
+                </button>
+              </Link>
+            )}
+          </div>
+        )}
 
         {/* Library Section */}
         {isArtist && (
@@ -51,6 +60,7 @@ const Sidebar = () => {
             <Link href={`/artist/album/list/${account?.address}`}>
               <button className="mt-4 flex items-center justify-between w-full py-2 px-4 bg-gray-800 rounded-lg">
                 <span>My Albums</span>
+                <FaMusic />
               </button>
             </Link>
           </div>
