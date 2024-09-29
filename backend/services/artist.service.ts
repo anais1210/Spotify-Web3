@@ -34,25 +34,29 @@ export class ArtistService {
     update: ArtistUpdate
   ): Promise<ArtistDocument | ApiErrorCode> {
     try {
-      console.log(update);
+      // Ensure albums and rewards are arrays, or default to empty arrays
+      const albums = update.albums ?? [];
+      const rewards = update.rewards ?? [];
+
       const artist = await ArtistModel.findOneAndUpdate(
         { address: address },
         {
-          $push: { albums: { $each: update.albums } },
+          ...(albums.length > 0 && { $push: { albums: { $each: albums } } }),
+          ...(rewards.length > 0 && { $push: { rewards: { $each: rewards } } }),
           $set: {
             claimCount: update.claimCount,
             status: update.status,
-            rewards: update.rewards,
           },
         },
-
         {
           returnDocument: "after",
         }
       );
+
       if (artist === null) {
         return ApiErrorCode.notFound;
       }
+
       return artist;
     } catch (error) {
       console.error("Error fetching artist:", error); // Log the error
@@ -127,9 +131,6 @@ export class ArtistService {
     if (search.status !== undefined) {
       filter.status = { $regex: search.status, $options: "i" };
     }
-    if (search.rewards !== undefined) {
-      filter.currentReward = { $regex: search.rewards, $options: "i" }; // This was previously incorrect
-    }
 
     const query = ArtistModel.find(filter);
 
@@ -147,20 +148,19 @@ export interface ArtistCreate {
   readonly address: string;
   readonly claimCount: number;
   readonly status: string;
-  readonly rewards: string;
+  readonly rewards: string[];
   readonly album: string[];
 }
 
 export interface ArtistSearch {
   readonly address?: string;
   readonly status?: string;
-  readonly rewards?: string;
   readonly limit?: number;
   readonly offset?: number;
 }
 export interface ArtistUpdate {
   readonly claimCount?: number;
   readonly status?: string;
-  readonly rewards?: string;
+  readonly rewards?: string[];
   readonly albums?: string[];
 }

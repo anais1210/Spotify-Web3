@@ -38,15 +38,15 @@ export class RewardService {
     return ApiErrorCode.success;
   }
 
-  async getSubsById(id: string): Promise<RewardDocument | null> {
+  async getRewardById(id: string): Promise<RewardDocument | null> {
     if (!Types.ObjectId.isValid(id)) {
       return null;
     }
-    const subs = await RewardModel.findById(id);
-    if (subs === null) {
+    const reward = await RewardModel.findById(id);
+    if (reward === null) {
       return null;
     }
-    return subs;
+    return reward;
   }
 
   async getSubsByUserId(userId: string): Promise<RewardDocument | null> {
@@ -70,4 +70,6 @@ export interface RewardCreate {
   readonly address: string;
   readonly name: string;
   readonly claim: boolean;
+  readonly tokenId: number;
+  readonly amount: number;
 }

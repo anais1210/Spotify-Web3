@@ -6,6 +6,8 @@ export interface RewardProps {
   address: string;
   name: string;
   claim: boolean;
+  tokenId: number;
+  amount: number;
 }
 
 export type RewardDocument = RewardProps & Document;
@@ -25,6 +27,15 @@ const rewardSchema = new Schema(
       type: Schema.Types.Boolean,
       required: true,
       default: false,
+    },
+    tokenId: {
+      type: Schema.Types.Number,
+      unique: true,
+      //   required: true,
+    },
+    amount: {
+      type: Schema.Types.Number,
+      //   required: true,
     },
   },
   {

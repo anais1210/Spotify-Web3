@@ -114,7 +114,6 @@ export class ArtistController {
       const artists = await ArtistService.getInstance().searchArtist({
         address: req.query.address as string,
         status: req.query.status as string,
-        rewards: req.query.currentReward as string, // There was a typo here
         limit: limit,
         offset: offset,
       });

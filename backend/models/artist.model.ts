@@ -33,7 +33,7 @@ const artistSchema = new Schema(
     rewards: [
       {
         type: Schema.Types.ObjectId,
-        // required: true,
+        ref: "Reward",
       },
     ],
     albums: [

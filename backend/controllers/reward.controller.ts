@@ -20,9 +20,9 @@ export class RewardController {
 
   private constructor() {}
 
-  async getSubsById(req: express.Request, res: express.Response) {
+  async getRewardById(req: express.Request, res: express.Response) {
     const id = req.params.id;
-    const result = await RewardService.getInstance().getSubsById(id);
+    const result = await RewardService.getInstance().getRewardById(id);
     if (result === null) {
       return res.status(404).end();
     }
@@ -46,7 +46,7 @@ export class RewardController {
     res.json(result);
   }
 
-  async createSubs(req: express.Request, res: express.Response) {
+  async createReward(req: express.Request, res: express.Response) {
     const data = req.body;
     const result = await RewardService.getInstance().createReward(data);
     if (result === ApiErrorCode.invalidParameters) {
@@ -74,8 +74,8 @@ export class RewardController {
     const router = express.Router(); //création d'un nouveau routeur
     router.get("/", this.getAllSubs.bind(this));
     router.get("/:userId", this.getSubsByUserId.bind(this));
-    router.get("/:id", this.getSubsById.bind(this));
-    router.post("/create", this.createSubs.bind(this));
+    router.get("/:id", this.getRewardById.bind(this));
+    router.post("/create", this.createReward.bind(this));
     router.delete("/:id", this.deleteSubs.bind(this));
     return router;
   }
