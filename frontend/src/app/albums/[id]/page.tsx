@@ -42,7 +42,6 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
       const resultAlbum = await fetchAlbumById(params.id);
       if (resultAlbum) {
         setAlbum(resultAlbum);
-        console.log("Album fetched:", resultAlbum); // Debug line
         if (resultAlbum.address === account?.address) {
           setOwner(true);
         }

@@ -9,7 +9,7 @@ import {
 } from "react-icons/fa";
 import { AlbumProps } from "@/api/albums.api";
 import { TitleProps } from "@/api/titles.api";
-import { addReward, RewardProps } from "@/api/reward.api";
+import { addReward } from "@/api/reward.api";
 
 const CustomAudioPlayer = ({
   src,
@@ -32,22 +32,9 @@ const CustomAudioPlayer = ({
   const [volume, setVolume] = useState(1);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [elapsedTime, setElapsedTime] = useState(0);
   const [points, setPoints] = useState(0);
-  const [lastTimeChecked, setLastTimeChecked] = useState(0);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (audioRef.current) {
-        const currentTimeValue = audioRef.current.currentTime;
-        if (currentTimeValue - lastTimeChecked >= 10) {
-          setPoints((prevPoints) => prevPoints + 1);
-          setLastTimeChecked(currentTimeValue);
-        }
-      }
-    }, 1000); // Check every second
-
-    return () => clearInterval(intervalId); // Clean up on unmount
-  }, [lastTimeChecked]);
+  const [listeningTime, setListeningTime] = useState(0); // Temps d'écoute réel en secondes
 
   const togglePlayPause = () => {
     if (audioRef.current) {
@@ -104,7 +91,42 @@ const CustomAudioPlayer = ({
     const prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
     onSongChange(prevIndex);
   };
+  useEffect(() => {
+    if (audioRef.current) {
+      const audio = audioRef.current;
 
+      const handleTimeUpdate = () => {
+        if (isPlaying) {
+          setListeningTime((prev) => prev + 1); // Incrémente le temps d'écoute
+        }
+      };
+
+      const interval = setInterval(handleTimeUpdate, 1000); // Vérifie chaque seconde
+
+      return () => clearInterval(interval);
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
+    const updatePoints = async () => {
+      // Ajoute des points tous les 10 secondes d'écoute
+      if (listeningTime % 10 === 0 && listeningTime > 0) {
+        setPoints((prevPoints) => prevPoints + 1);
+
+        const addPoints = await addReward({
+          address: album.address,
+          name: "reward",
+        });
+
+        if (addPoints) {
+          console.log("Reward added successfully:", addPoints);
+        } else {
+          console.error("Failed to add reward");
+        }
+      }
+    };
+    updatePoints();
+  }, [listeningTime]);
   return (
     <div className="flex items-center bg-black p-6 rounded-lg w-full ">
       <img
@@ -117,7 +139,6 @@ const CustomAudioPlayer = ({
       <div className="mr-6 flex-col">
         <p className="text-white text-lg font-bold">{title}</p>
         <p className="text-gray-400 text-sm">{album.author}</p>
-        <div className="text-gray-400 text-sm ml-2">Points: {points}</div>
       </div>
       <div className="flex items-center w-full">
         <audio
@@ -166,6 +187,7 @@ const CustomAudioPlayer = ({
           style={{ accentColor: "#1DB954" }}
         />
       </div>
+      <div>Points: {points}</div>
     </div>
   );
 };
