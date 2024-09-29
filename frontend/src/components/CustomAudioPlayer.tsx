@@ -7,9 +7,10 @@ import {
   FaVolumeUp,
   FaVolumeMute,
 } from "react-icons/fa";
-import { AlbumProps } from "@/api/albums.api";
+import { AlbumProps, fetchAlbumById } from "@/api/albums.api";
 import { TitleProps } from "@/api/titles.api";
 import { addReward } from "@/api/reward.api";
+import { ArtistProps, updateArtist } from "@/api/artists.api";
 
 const CustomAudioPlayer = ({
   src,
@@ -32,9 +33,9 @@ const CustomAudioPlayer = ({
   const [volume, setVolume] = useState(1);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const [elapsedTime, setElapsedTime] = useState(0);
   const [points, setPoints] = useState(0);
   const [listeningTime, setListeningTime] = useState(0); // Temps d'écoute réel en secondes
+  const [artist, setArtist] = useState<ArtistProps>();
 
   const togglePlayPause = () => {
     if (audioRef.current) {
@@ -112,17 +113,25 @@ const CustomAudioPlayer = ({
       // Ajoute des points tous les 10 secondes d'écoute
       if (listeningTime % 10 === 0 && listeningTime > 0) {
         setPoints((prevPoints) => prevPoints + 1);
-
-        const addPoints = await addReward({
-          address: album.address,
-          name: "reward",
-        });
-
-        if (addPoints) {
-          console.log("Reward added successfully:", addPoints);
-        } else {
-          console.error("Failed to add reward");
+        if (album && album._id) {
+          const fetchAddress = await fetchAlbumById(album._id);
+          if (fetchAddress && fetchAddress.address) {
+            console.log(fetchAddress.address);
+            const addPoints = await addReward({
+              name: "reward",
+            });
+            if (addPoints && addPoints._id) {
+              const updateReward = await updateArtist({
+                address: fetchAddress.address,
+                rewards: [addPoints._id],
+              });
+              if (updateReward) {
+                console.log("success update and add reward");
+              }
+            }
+          }
         }
+        console.log(album);
       }
     };
     updatePoints();
