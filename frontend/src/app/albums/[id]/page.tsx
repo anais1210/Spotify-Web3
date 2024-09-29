@@ -1,14 +1,19 @@
 "use client";
 import { FaPlus } from "react-icons/fa";
 import { useState, useEffect } from "react";
-import { fetchAlbumById } from "@/api/albums.api";
-import { AlbumProps } from "@/api/albums.api";
+import { AlbumProps, fetchAlbumById } from "@/api/albums.api";
 import { TitleProps, fetchTitleById } from "@/api/titles.api";
 import Loading from "@/components/Loading";
 import { useActiveAccount } from "thirdweb/react";
 import AddSong from "@/components/AddSong";
 import Modal from "@/components/Modal";
 import CustomAudioPlayer from "@/components/CustomAudioPlayer";
+import { addReward, RewardProps } from "@/api/reward.api";
+import {
+  ArtistProps,
+  fetchArtistByAddress,
+  updateArtist,
+} from "@/api/artists.api";
 
 interface AlbumDetailProps {
   params: {
@@ -18,7 +23,6 @@ interface AlbumDetailProps {
 
 const AlbumPage = ({ params }: AlbumDetailProps) => {
   const account = useActiveAccount();
-  const [loading, setLoading] = useState(true);
   const [album, setAlbum] = useState<AlbumProps | null>(null);
   const [titles, setTitles] = useState<TitleProps[]>([]);
   const [titleName, setTitleName] = useState("");
@@ -26,7 +30,10 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSong, setSelectedSong] = useState<string | null>(null); // State for selected song
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
-
+  const [reward, setReward] = useState<RewardProps>({});
+  const [artist, setArtist] = useState<ArtistProps>({
+    rewards: [""],
+  });
   // TODO: FIX THE PLAYER BUTTON
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -35,9 +42,12 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
       const resultAlbum = await fetchAlbumById(params.id);
       if (resultAlbum) {
         setAlbum(resultAlbum);
+        console.log("Album fetched:", resultAlbum); // Debug line
         if (resultAlbum.address === account?.address) {
           setOwner(true);
         }
+      } else {
+        console.error("Failed to fetch album."); // Debug line
       }
     };
 
@@ -48,7 +58,6 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
     // Check if album address is available and if the account is the owner
     if (album?.address) {
       if (album.address === account?.address) {
-        console.log(album.address);
         setOwner(true);
       }
     }
@@ -95,6 +104,7 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
     setIsPlaying(true);
     setCurrentSongIndex(index);
   };
+
   if (!album || !titles) {
     return <Loading />;
   }
@@ -185,6 +195,7 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
             songs={titles}
             currentSongIndex={currentSongIndex}
             onSongChange={handleSongChange}
+            // onPointsUpdate={handlePointsUpdate}
           />
         </div>
       )}

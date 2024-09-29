@@ -17,7 +17,7 @@ const rewardSchema = new Schema(
     address: {
       type: Schema.Types.String,
       //   required: true,
-      unique: true,
+      // unique: true,
     },
     name: {
       type: Schema.Types.String,
@@ -25,7 +25,6 @@ const rewardSchema = new Schema(
     },
     claim: {
       type: Schema.Types.Boolean,
-      required: true,
       default: false,
     },
     tokenId: {

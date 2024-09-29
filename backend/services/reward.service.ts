@@ -67,9 +67,9 @@ export class RewardService {
 }
 
 export interface RewardCreate {
-  readonly address: string;
+  readonly address?: string;
   readonly name: string;
-  readonly claim: boolean;
-  readonly tokenId: number;
-  readonly amount: number;
+  readonly claim?: boolean;
+  readonly tokenId?: number;
+  readonly amount?: number;
 }

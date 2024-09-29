@@ -8,7 +8,7 @@ export interface ArtistProps {
   address?: string;
   claimCount?: number;
   status?: string;
-  reward?: string;
+  rewards?: string[];
   albums?: string[];
 }
 

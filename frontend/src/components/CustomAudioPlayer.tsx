@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useRef, useEffect } from "react";
 import {
   FaPlay,
@@ -8,9 +7,9 @@ import {
   FaVolumeUp,
   FaVolumeMute,
 } from "react-icons/fa";
-import Image from "next/image";
 import { AlbumProps } from "@/api/albums.api";
 import { TitleProps } from "@/api/titles.api";
+import { addReward, RewardProps } from "@/api/reward.api";
 
 const CustomAudioPlayer = ({
   src,
@@ -33,8 +32,23 @@ const CustomAudioPlayer = ({
   const [volume, setVolume] = useState(1);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [points, setPoints] = useState(0);
+  const [lastTimeChecked, setLastTimeChecked] = useState(0);
 
-  // Play or pause the audio
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (audioRef.current) {
+        const currentTimeValue = audioRef.current.currentTime;
+        if (currentTimeValue - lastTimeChecked >= 10) {
+          setPoints((prevPoints) => prevPoints + 1);
+          setLastTimeChecked(currentTimeValue);
+        }
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(intervalId); // Clean up on unmount
+  }, [lastTimeChecked]);
+
   const togglePlayPause = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -46,22 +60,20 @@ const CustomAudioPlayer = ({
     }
   };
 
-  // Update progress bar as the audio plays
   const handleTimeUpdate = () => {
     if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-      setProgress((audioRef.current.currentTime / duration) * 100);
+      const currentTimeValue = audioRef.current.currentTime;
+      setCurrentTime(currentTimeValue);
+      setProgress((currentTimeValue / duration) * 100);
     }
   };
 
-  // Update duration when metadata is loaded
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
     }
   };
 
-  // Handle progress bar changes
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (audioRef.current) {
       const newTime = (e.target.valueAsNumber / 100) * duration;
@@ -70,7 +82,6 @@ const CustomAudioPlayer = ({
     }
   };
 
-  // Handle volume changes
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (audioRef.current) {
       audioRef.current.volume = e.target.valueAsNumber;
@@ -78,12 +89,12 @@ const CustomAudioPlayer = ({
     }
   };
 
-  // Format time in mm:ss format
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
+
   const nextSong = () => {
     const nextIndex = (currentSongIndex + 1) % songs.length;
     onSongChange(nextIndex);
@@ -93,10 +104,9 @@ const CustomAudioPlayer = ({
     const prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
     onSongChange(prevIndex);
   };
+
   return (
-    // TODO:FIX THE PADDING STICK ON BOTTOM
     <div className="flex items-center bg-black p-6 rounded-lg w-full ">
-      {/* Album Art */}
       <img
         src={album.img!}
         alt="Album Cover"
@@ -104,14 +114,11 @@ const CustomAudioPlayer = ({
         height={80}
         className="rounded-lg mr-6"
       />
-
-      {/* Song Info */}
       <div className="mr-6 flex-col">
         <p className="text-white text-lg font-bold">{title}</p>
         <p className="text-gray-400 text-sm">{album.author}</p>
+        <div className="text-gray-400 text-sm ml-2">Points: {points}</div>
       </div>
-
-      {/* Audio Controls */}
       <div className="flex items-center w-full">
         <audio
           ref={audioRef}
@@ -119,43 +126,31 @@ const CustomAudioPlayer = ({
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
         />
-
-        {/* Backward Button */}
         <button onClick={prevSong} className="text-white mx-2 text-lg">
           <FaStepBackward />
         </button>
-
-        {/* Play/Pause Button */}
         <button
           onClick={togglePlayPause}
           className="bg-white text-black rounded-full p-3 mx-2"
         >
           {isPlaying ? <FaPause /> : <FaPlay />}
         </button>
-
-        {/* Forward Button */}
         <button onClick={nextSong} className="text-white mx-2 text-lg">
           <FaStepForward />
         </button>
-
-        {/* Progress Bar */}
         <input
           type="range"
           value={progress}
           onChange={handleProgressChange}
           className="w-full mx-4"
-          style={{ accentColor: "#1DB954" }} // Spotify-like green
+          style={{ accentColor: "#1DB954" }}
         />
-
-        {/* Current Time / Duration */}
         <div className="flex items-center text-gray-400 text-sm mx-2">
           <span>{formatTime(currentTime)}</span>
-          <span className="mx-1">/</span> {/* Reduced margin here */}
+          <span className="mx-1">/</span>
           <span>{formatTime(duration)}</span>
         </div>
       </div>
-
-      {/* Volume Control */}
       <div className="flex items-center ml-4">
         <button className="text-white">
           {volume > 0 ? <FaVolumeUp /> : <FaVolumeMute />}
