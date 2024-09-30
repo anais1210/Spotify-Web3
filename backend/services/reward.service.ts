@@ -42,11 +42,49 @@ export class RewardService {
     const rewards = await RewardModel.find();
     return rewards;
   }
+  async getRewardByIdAndUpdate(
+    id: string,
+    update: RewardUpdate
+  ): Promise<RewardDocument | ApiErrorCode> {
+    try {
+      const album = await RewardModel.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            address: update.address,
+            name: update.name,
+            claim: update.claim,
+            tokenId: update.tokenId,
+            amount: update.amount,
+          },
+        },
+
+        {
+          returnDocument: "after",
+        }
+      );
+      if (album === null) {
+        return ApiErrorCode.notFound;
+      }
+      return album;
+    } catch (error) {
+      console.error("Error fetching album:", error); // Log the error
+      return ApiErrorCode.failed;
+    }
+  }
 }
 
 export interface RewardCreate {
   readonly address?: string;
   readonly name: string;
+  readonly claim?: boolean;
+  readonly tokenId?: number;
+  readonly amount?: number;
+}
+
+export interface RewardUpdate {
+  readonly address?: string;
+  readonly name?: string;
   readonly claim?: boolean;
   readonly tokenId?: number;
   readonly amount?: number;

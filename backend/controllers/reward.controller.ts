@@ -49,11 +49,30 @@ export class RewardController {
     res.json(result);
   }
 
+  async getRewardyIdAndUpdate(req: express.Request, res: express.Response) {
+    const id = req.params.id;
+    const data = req.body;
+
+    const result = await RewardService.getInstance().getRewardByIdAndUpdate(
+      id,
+      data
+    );
+    if (result === ApiErrorCode.notFound) {
+      return res.status(404).json({ message: "Album not found" });
+    }
+    if (result === ApiErrorCode.failed) {
+      console.error("Failed to retrieve album:", id);
+      return res.status(500).json({ message: "Failed to retrieve album" });
+    }
+    return res.json(result);
+  }
+
   buildRouter(): express.Router {
     const router = express.Router(); //création d'un nouveau routeur
     router.get("/", this.getAllRewards.bind(this));
     router.get("/:id", this.getRewardById.bind(this));
     router.post("/create", this.createReward.bind(this));
+    router.put("/update/:id", this.getRewardyIdAndUpdate.bind(this));
     return router;
   }
 }
