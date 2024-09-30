@@ -24,3 +24,25 @@ export const addReward = async (
     return null;
   }
 };
+
+export const fetchRewardById = async (
+  id: string
+): Promise<RewardProps | null> => {
+  try {
+    const response = await axios.get<RewardProps>(`${api}/artist/reward/${id}`);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
+export const updateReward = async (id: string): Promise<RewardProps | null> => {
+  try {
+    const response = await axios.put<RewardProps>(`${api}/artist/reward/${id}`);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};

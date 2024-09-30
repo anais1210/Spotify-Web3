@@ -10,7 +10,11 @@ import {
 import { AlbumProps, fetchAlbumById } from "@/api/albums.api";
 import { TitleProps } from "@/api/titles.api";
 import { addReward } from "@/api/reward.api";
-import { ArtistProps, updateArtist } from "@/api/artists.api";
+import {
+  ArtistProps,
+  fetchArtistByAddress,
+  updateArtist,
+} from "@/api/artists.api";
 
 const CustomAudioPlayer = ({
   src,
@@ -116,9 +120,8 @@ const CustomAudioPlayer = ({
         if (album && album._id) {
           const fetchAddress = await fetchAlbumById(album._id);
           if (fetchAddress && fetchAddress.address) {
-            console.log(fetchAddress.address);
             const addPoints = await addReward({
-              name: "reward",
+              name: `Reward`,
             });
             if (addPoints && addPoints._id) {
               const updateReward = await updateArtist({

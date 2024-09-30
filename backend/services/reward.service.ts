@@ -27,17 +27,6 @@ export class RewardService {
     }
   }
 
-  async deleteSubs(id: string): Promise<ApiErrorCode> {
-    if (!Types.ObjectId.isValid(id)) {
-      return ApiErrorCode.invalidParameters;
-    }
-    const subs = await RewardModel.findByIdAndDelete(id);
-    if (subs === null) {
-      return ApiErrorCode.notFound;
-    }
-    return ApiErrorCode.success;
-  }
-
   async getRewardById(id: string): Promise<RewardDocument | null> {
     if (!Types.ObjectId.isValid(id)) {
       return null;
@@ -49,20 +38,9 @@ export class RewardService {
     return reward;
   }
 
-  async getSubsByUserId(userId: string): Promise<RewardDocument | null> {
-    if (!Types.ObjectId.isValid(userId)) {
-      return null;
-    }
-    const subs = await RewardModel.findOne({ userId });
-    if (subs === null) {
-      return null;
-    }
-    return subs;
-  }
-
-  async getAllSubs(): Promise<RewardDocument[] | null> {
-    const subs = await RewardModel.find();
-    return subs;
+  async getAllReward(): Promise<RewardDocument[] | null> {
+    const rewards = await RewardModel.find();
+    return rewards;
   }
 }
 

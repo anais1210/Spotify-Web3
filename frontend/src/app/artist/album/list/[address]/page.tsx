@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import { fetchArtistByAddress } from "@/api/artists.api";
 import { fetchAlbumById, AlbumProps } from "@/api/albums.api";
 import Link from "next/link";
