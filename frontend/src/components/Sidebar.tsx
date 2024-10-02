@@ -1,6 +1,7 @@
 "use client";
 import { FaPlus, FaUser } from "react-icons/fa";
 import { FaListCheck, FaMedal, FaMusic } from "react-icons/fa6";
+import logo from "../../public/logo.png";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -18,7 +19,7 @@ const Sidebar = () => {
         <Link href="/" passHref>
           <div className="mb-8">
             <Image
-              src="https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg"
+              src={logo}
               alt="Spotify Logo"
               className="w-32 mx-auto"
               width={120}

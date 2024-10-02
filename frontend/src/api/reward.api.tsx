@@ -37,12 +37,18 @@ export const fetchRewardById = async (
   }
 };
 
-export const updateReward = async (id: string): Promise<RewardProps | null> => {
+export const updateReward = async (
+  id: string,
+  rewardData: RewardProps
+): Promise<RewardProps | null> => {
   try {
-    const response = await axios.put<RewardProps>(`${api}/artist/reward/${id}`);
+    const response = await axios.put<RewardProps>(
+      `${api}/artist/reward/update/${id}`,
+      rewardData
+    );
     return response.data;
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("Error updating artist:", error);
     return null;
   }
 };

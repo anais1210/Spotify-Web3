@@ -42,10 +42,9 @@ const Profile = ({ params }: UserDetailProps) => {
             profile: fetchedUser.profile || "",
           });
         } else {
-          toast.error("User not found.");
+          console.error("User not found.");
         }
       } catch (error) {
-        console.error("Error fetching user:", error);
         toast.error("Error fetching user details.");
       } finally {
         setLoading(false);

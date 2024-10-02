@@ -122,6 +122,7 @@ const CustomAudioPlayer = ({
           if (fetchAddress && fetchAddress.address) {
             const addPoints = await addReward({
               name: `Reward`,
+              amount: 2000,
             });
             if (addPoints && addPoints._id) {
               const updateReward = await updateArtist({

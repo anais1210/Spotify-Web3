@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { fetchArtistByAddress } from "@/api/artists.api";
-import { RewardProps, fetchRewardById } from "@/api/reward.api";
+import { RewardProps, fetchRewardById, updateReward } from "@/api/reward.api";
 import Link from "next/link";
 import { FaMedal } from "react-icons/fa";
 import { darkTheme, TransactionButton } from "thirdweb/react";
-import { prepareContractCall } from "thirdweb";
+import { prepareContractCall, waitForReceipt } from "thirdweb";
 import { contractToken as contract } from "@/contracts/contracts";
+import { toast } from "react-toastify";
 
 interface ArtistDetailProps {
   params: {
@@ -68,28 +69,14 @@ const Reward = ({ params }: ArtistDetailProps) => {
     fetchRewardDetails();
   }, [rewardIds]);
 
-  const updateReward = async (reward: RewardProps, status: string) => {
+  const handleClaim = async (id: string) => {
     try {
-      const updatedArtist = { ...reward, claim };
-      const response = await updateReward(updatedArtist);
-
+      const response = await updateReward(id, { claim: true });
       if (response) {
-        toast.success(
-          `Artist ${
-            status === "confirmed" ? "confirmed" : "rejected"
-          } successfully!`
-        );
-      } else {
-        throw new Error("Failed to update the artist.");
+        toast.success("Reward claimed successfully!");
       }
     } catch (error) {
-      console.error(
-        `Error ${status === "confirmed" ? "pending" : "rejecting"} artist:`,
-        error
-      );
-      toast.error(
-        `Failed to ${status === "confirmed" ? "confirm" : "reject"} the artist.`
-      );
+      console.error(error);
     }
   };
 
@@ -104,8 +91,9 @@ const Reward = ({ params }: ArtistDetailProps) => {
       <h1 className="text-3xl font-bold text-center mb-6 flex items-center justify-center">
         Rewards <FaMedal className="ml-2 text-yellow-500" />
       </h1>
+
       {message ? (
-        <p className="text-center text-white">{message}</p>
+        <p className="text-center text-gray-700">{message}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {rewards.map((reward, index) => {
@@ -114,38 +102,56 @@ const Reward = ({ params }: ArtistDetailProps) => {
               reward.amount !== undefined ? BigInt(reward.amount) : BigInt(0);
 
             return (
-              <Link href={`/rewards/${reward._id}`} key={reward._id}>
-                <div className="bg-gray-800 p-4 rounded-lg shadow-lg hover:bg-gray-700 transition-all duration-200 cursor-pointer">
+              <>
+                <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer">
                   {/* Reward Info */}
-                  <h2 className="text-xl font-semibold text-white mb-2 flex items-center">
-                    {index + 1} {getOrdinalSuffix(index + 1)}
-                    {reward.name}
-                    <FaMedal className="ml-2 text-yellow-500" />
-                  </h2>
-                  <p className="text-gray-400">
-                    Congratulations for your {index + 1}th reward
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <FaMedal className="text-yellow-500 mr-2 text-xl" />
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        {index + 1}
+                        {getOrdinalSuffix(index + 1)} {reward.name}
+                      </h2>
+                    </div>
+                  </div>
+                  <p className="text-gray-500 mb-4 text-sm">
+                    Congratulations on your {index + 1}
+                    {getOrdinalSuffix(index + 1)} reward!
                   </p>
-                  <TransactionButton
-                    transaction={() =>
-                      prepareContractCall({
-                        contract: contract,
-                        method:
-                          "function mint(address account, uint256 amount)",
-                        params: [params.address, amount], // Pass the converted amount
-                      })
-                    }
-                    onTransactionConfirmed={async () => {
-                      alert("Tier added successfully!");
-                      updateReward(params.address);
-                    }}
-                    onError={(error) => alert(`Error: ${error.message}`)}
-                    theme={darkTheme()}
-                    className="bg-green-500 text-black px-4 py-2 rounded-full hover:bg-green-400"
-                  >
-                    Claim Reward
-                  </TransactionButton>
+                  <p className="text-gray-500 mb-4 text-sm">
+                    You earn {reward.amount} SoundCoin for your {index + 1}
+                    {getOrdinalSuffix(index + 1)} reward!
+                  </p>
+                  {reward.claim ? (
+                    <button
+                      disabled
+                      className="mt-4 bg-gray-500 text-gray-200 px-4 py-2 rounded cursor-not-allowed"
+                    >
+                      Claimed
+                    </button>
+                  ) : (
+                    <TransactionButton
+                      transaction={() =>
+                        prepareContractCall({
+                          contract: contract,
+                          method:
+                            "function mint(address account, uint256 amount)",
+                          params: [params.address, amount], // Pass the converted amount
+                        })
+                      }
+                      onTransactionConfirmed={async () => {
+                        alert("Tier added successfully!");
+                        handleClaim(reward._id!);
+                      }}
+                      onError={(error) => alert(`Error: ${error.message}`)}
+                      theme={darkTheme()}
+                      className="bg-green-500 text-black px-4 py-2 rounded-full hover:bg-green-400"
+                    >
+                      Claim Reward
+                    </TransactionButton>
+                  )}
                 </div>
-              </Link>
+              </>
             );
           })}
         </div>
