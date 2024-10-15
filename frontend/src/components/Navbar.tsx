@@ -1,13 +1,15 @@
 "use client";
 import { FaHome, FaSearch } from "react-icons/fa";
-import { ConnectButton, darkTheme, useActiveAccount } from "thirdweb/react";
+import { ConnectButton, darkTheme } from "thirdweb/react";
 import { client } from "@/app/client";
 import { fetchTitles, TitleProps } from "@/api/titles.api";
 import { fetchAlbums, AlbumProps } from "@/api/albums.api";
-import { fetchUsers, User } from "@/api/user.api";
+import { fetchUsers, User, addUser, fetchUserByAddress } from "@/api/user.api";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 const Navbar = () => {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [titles, setTitles] = useState<TitleProps[]>([]);
   const [artists, setArtists] = useState<User[]>([]);
@@ -60,6 +62,18 @@ const Navbar = () => {
       });
     } else {
       setFilteredResults({ titles: [], artists: [], albums: [] });
+    }
+  };
+
+  const handleConnect = async (address: string) => {
+    try {
+      const exist = await fetchUserByAddress(address);
+      if (!exist) {
+        const response = await addUser({ address: address });
+        console.log("user added");
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   return (
@@ -141,6 +155,9 @@ const Navbar = () => {
             style: {
               maxHeight: "50px",
             },
+          }}
+          onConnect={(wallet) => {
+            handleConnect(wallet.getAccount()?.address!);
           }}
         />
       </div>

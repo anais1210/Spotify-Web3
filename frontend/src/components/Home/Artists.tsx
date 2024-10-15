@@ -29,7 +29,7 @@ const Artists = () => {
           artists.map((artist) => (
             <Link
               key={artist.address}
-              href={`/artist/album/${artist.address}`}
+              href={`/artist/album/list/${artist.address}`}
               passHref={true}
             >
               <div className="text-center">

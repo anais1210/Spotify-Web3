@@ -17,13 +17,13 @@ const Sidebar = () => {
       {/* Logo */}
       <div>
         <Link href="/" passHref>
-          <div className="mb-8">
+          <div className="">
             <Image
               src={logo}
               alt="Spotify Logo"
-              className="w-32 mx-auto"
-              width={120}
-              height={40}
+              className="mx-auto"
+              width={170}
+              height={170}
             />
           </div>
         </Link>

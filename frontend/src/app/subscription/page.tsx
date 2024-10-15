@@ -1,8 +1,52 @@
 "use client";
+import React, { useState } from "react";
+import { addSubscription } from "@/api/subscription.api";
+import { fetchUserByAddress, addUser, updateUser } from "@/api/user.api";
 import { FaCheck } from "react-icons/fa";
 import { Subs } from "subs-widget";
-
+import { useActiveAccount } from "thirdweb/react";
 const SubscriptionPage = () => {
+  const account = useActiveAccount();
+  const [accountExist, setAccountExist] = useState(false);
+  const createSubscription = async (userId: string) => {
+    try {
+      const subscriptionData = {
+        startDate: new Date(),
+        lastPayment: new Date(),
+        status: "Abonnement en cours",
+        userId: userId,
+      };
+
+      const subId = await addSubscription(subscriptionData);
+      return subId;
+    } catch (error) {
+      return null;
+    }
+  };
+  const handleResponse = async (response: { success: boolean }) => {
+    if (response.success) {
+      if (account?.address) {
+        setAccountExist(true);
+        const userId = await fetchUserByAddress(account?.address);
+
+        if (userId && userId._id) {
+          const id = await createSubscription(userId._id);
+          if (id && id._id) {
+            const update = await updateUser(account?.address, {
+              subscription: id._id,
+            });
+          }
+        } else {
+          const newUser = await addUser({ address: account?.address });
+          if (newUser && newUser._id) {
+            await createSubscription(newUser._id);
+          }
+        }
+      } else {
+        setAccountExist(false);
+      }
+    }
+  };
   return (
     <div className="bg-black text-white min-h-screen">
       {/* Header */}
@@ -59,7 +103,7 @@ const SubscriptionPage = () => {
         {/* Personal Plan */}
         <div className="bg-gray-800 p-6 rounded-lg text-center shadow-lgtransition-colors duration-300 hover:bg-white hover:text-black">
           <h3 className="text-2xl font-bold">Personnel</h3>
-          <p className="text-lg mt-4">11,12 €/mois</p>
+          <p className="text-lg mt-4">1 USDT/mois</p>
           <ul className="mt-4 space-y-2 text-left">
             <li className="flex items-center space-x-2">
               <FaCheck className="text-green-500" />
@@ -86,7 +130,7 @@ const SubscriptionPage = () => {
                   //address token payment
                   token: "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
                 }}
-                // dataOnSubs={handleResponse}
+                dataOnSubs={() => handleResponse({ success: true })}
               />
             </span>
           </div>
@@ -95,7 +139,7 @@ const SubscriptionPage = () => {
         {/* Students Plan */}
         <div className="bg-gray-800 p-6 rounded-lg text-center shadow-lg transition-colors duration-300 hover:bg-white hover:text-black">
           <h3 className="text-2xl font-bold">Étudiants</h3>
-          <p className="text-lg mt-4">6,06 €/mois</p>
+          <p className="text-lg mt-4">1 USDT/mois</p>
           <ul className="mt-4 space-y-2 text-left">
             <li className="flex items-center space-x-2">
               <FaCheck className="text-green-500" />
@@ -123,10 +167,9 @@ const SubscriptionPage = () => {
                 defaultPayment="Prenium"
                 choice={{
                   payment: "Prenium",
-                  //address token payment
                   token: "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
                 }}
-                // dataOnSubs={handleResponse}
+                dataOnSubs={() => handleResponse({ success: true })}
               />
             </span>
           </div>
@@ -135,7 +178,7 @@ const SubscriptionPage = () => {
         {/* Duo Plan */}
         <div className="bg-gray-800 p-6 rounded-lg text-center shadow-lg transition-colors duration-300 hover:bg-white hover:text-black">
           <h3 className="text-2xl font-bold">Duo</h3>
-          <p className="text-lg mt-4">15,17 €/mois</p>
+          <p className="text-lg mt-4">1 USDT/mois</p>
           <ul className="mt-4 space-y-2 text-left">
             <li className="flex items-center space-x-2">
               <FaCheck className="text-green-500" />
@@ -159,10 +202,9 @@ const SubscriptionPage = () => {
                 defaultPayment="Prenium"
                 choice={{
                   payment: "Prenium",
-                  //address token payment
                   token: "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
                 }}
-                // dataOnSubs={handleResponse}
+                dataOnSubs={() => handleResponse({ success: true })}
               />
             </span>
           </div>

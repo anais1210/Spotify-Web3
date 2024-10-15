@@ -11,7 +11,7 @@ const Albums = () => {
       try {
         const fetchedAlbums = await fetchAlbums();
         if (fetchedAlbums) {
-          setAlbums(fetchedAlbums); // Set the artists' state if data is fetched.
+          setAlbums(fetchedAlbums);
         }
       } catch (error) {
         console.error("Error fetching artists:", error);
@@ -19,11 +19,11 @@ const Albums = () => {
     };
 
     fetchAllAlbums();
-  }, []); // Empty dependency array to fetch artists only on component mount.
+  }, []);
 
   return (
     <div className="mt-8">
-      <h2 className="text-2xl font-bold">Popular albums</h2>
+      <h2 className="text-2xl font-bold">Popular Albums</h2>
       <div className="grid grid-cols-6 gap-4 mt-4">
         {albums.map((album) => (
           <Link key={album._id} href={`/albums/${album._id}`} passHref={true}>

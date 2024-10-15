@@ -2,23 +2,23 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { ArtistProps } from "@/api/artists.api";
 import { TitleProps } from "@/api/titles.api";
-import { SubProps } from "@/api/subscription.api";
+import { SubsProps } from "@/api/subscription.api";
 
 const api = process.env.NEXT_PUBLIC_API_URL;
 
 // Define the User type
 export interface User {
   _id?: string;
-  address: string;
-  lastname: string;
-  firstname: string;
-  email: string;
-  banned: boolean;
+  address?: string;
+  lastname?: string;
+  firstname?: string;
+  email?: string;
+  banned?: boolean;
   like?: TitleProps[];
   follow?: ArtistProps[];
-  subscription?: SubProps[];
-  role: string;
-  profile: string;
+  subscription?: string;
+  role?: string;
+  profile?: string;
 }
 
 // Function to fetch Users
