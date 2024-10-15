@@ -10,11 +10,11 @@ import {
 import { AlbumProps, fetchAlbumById } from "@/api/albums.api";
 import { TitleProps } from "@/api/titles.api";
 import { addReward } from "@/api/reward.api";
-import {
-  ArtistProps,
-  fetchArtistByAddress,
-  updateArtist,
-} from "@/api/artists.api";
+import { ArtistProps, updateArtist } from "@/api/artists.api";
+import { isSubscribe } from "@/api/subscription.api";
+import { fetchUserByAddress } from "@/api/user.api";
+import { useActiveAccount } from "thirdweb/react";
+import { toast } from "react-toastify";
 
 const CustomAudioPlayer = ({
   src,
@@ -40,9 +40,12 @@ const CustomAudioPlayer = ({
   const [points, setPoints] = useState(0);
   const [listeningTime, setListeningTime] = useState(0); // Temps d'écoute réel en secondes
   const [artist, setArtist] = useState<ArtistProps>();
+  const account = useActiveAccount();
+  const [isSubscribed, setIsSubscribed] = useState(false); // Track subscription status
+  const [hasShownToast, setHasShownToast] = useState(false); // Track if toast has been shown
 
   const togglePlayPause = () => {
-    if (audioRef.current) {
+    if (audioRef.current && (isSubscribed || currentTime < 21)) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
@@ -57,6 +60,14 @@ const CustomAudioPlayer = ({
       const currentTimeValue = audioRef.current.currentTime;
       setCurrentTime(currentTimeValue);
       setProgress((currentTimeValue / duration) * 100);
+      if (!isSubscribed && currentTimeValue >= 20) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+        if (!hasShownToast) {
+          toast.info("You need to subscribe to listen to the full song.");
+          setHasShownToast(true);
+        }
+      }
     }
   };
 
@@ -140,6 +151,23 @@ const CustomAudioPlayer = ({
     };
     updatePoints();
   }, [listeningTime]);
+  useEffect(() => {
+    const isSub = async () => {
+      if (account) {
+        const userId = await fetchUserByAddress(account?.address);
+        if (userId?._id) {
+          const sub = await isSubscribe(userId._id);
+          if (sub) {
+            setIsSubscribed(true);
+          } else {
+            setIsSubscribed(false);
+          }
+        }
+      }
+    };
+    isSub();
+  }, []);
+
   return (
     <div className="flex items-center bg-black p-6 rounded-lg w-full ">
       <img

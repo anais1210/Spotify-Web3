@@ -5,7 +5,8 @@ import React, { useEffect, useState } from "react";
 import { FaUser, FaEnvelope, FaWallet } from "react-icons/fa"; // Importing icons
 import Loading from "@/components/Loading"; // Adjust this import based on your project structure
 import { toast } from "react-toastify";
-
+import { getUserEmail } from "thirdweb/wallets/in-app";
+import { client } from "@/app/client";
 interface UserDetailProps {
   params: {
     address: string;
@@ -30,12 +31,13 @@ const Profile = ({ params }: UserDetailProps) => {
     const fetchUser = async () => {
       try {
         const fetchedUser = await fetchUserByAddress(params.address);
+        const userEmail = await getUserEmail({ client });
         if (fetchedUser) {
           setUser(fetchedUser);
           setFormData({
             firstname: fetchedUser.firstname || "",
             lastname: fetchedUser.lastname || "",
-            email: fetchedUser.email || "",
+            email: fetchedUser.email || userEmail || "",
             address: fetchedUser.address || params.address, // Use fetched address
             banned: fetchedUser.banned || false,
             role: fetchedUser.role || "user",
@@ -150,7 +152,6 @@ const Profile = ({ params }: UserDetailProps) => {
                   />
                 </div>
               </div>
-
               <div className="mb-4">
                 <label
                   className="flex items-center text-gray-300 mb-1"

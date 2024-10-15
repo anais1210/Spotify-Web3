@@ -121,7 +121,6 @@ const ArtistRegistration = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black-900 text-white p-6">
-      <ToastContainer />
       {walletAddress &&
         !isAdmin &&
         !isArtist &&

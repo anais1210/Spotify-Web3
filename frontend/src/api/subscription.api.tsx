@@ -22,3 +22,17 @@ export const addSubscription = async (
     return null;
   }
 };
+
+export const isSubscribe = async (
+  userId: string
+): Promise<SubsProps | null> => {
+  try {
+    const response = await axios.get<SubsProps>(
+      `${api}/sub/isSubscribed/${userId}`
+    );
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
