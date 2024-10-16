@@ -13,7 +13,7 @@ const SubscriptionPage = () => {
       const subscriptionData = {
         startDate: new Date(),
         lastPayment: new Date(),
-        status: "Abonnement en cours",
+        status: "abonnement en cours",
         userId: userId,
       };
 

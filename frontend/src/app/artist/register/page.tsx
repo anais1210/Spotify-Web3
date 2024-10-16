@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { upload } from "thirdweb/storage";
 import { client } from "@/app/client";
-import { addUser, User } from "@/api/user.api";
+import { addUser, fetchUserByAddress, User, updateUser } from "@/api/user.api";
 import { toast } from "react-toastify";
 import { ConnectButton, darkTheme, useActiveAccount } from "thirdweb/react";
 import { useUserRole, useArtistStatus } from "@/contracts/checkRole";
@@ -100,7 +100,13 @@ const ArtistRegistration = () => {
           console.log(email);
         }
         console.log(user.address);
-
+        const userExist = await fetchUserByAddress(account.address);
+        if (user) {
+          toast.info(
+            "Regular user cannot be artist and user at the same time. Please use another account to be registered as an artist."
+          );
+          return;
+        }
         const userSuccess = await addUser(user);
         const artistSuccess = await addArtist(artist);
 

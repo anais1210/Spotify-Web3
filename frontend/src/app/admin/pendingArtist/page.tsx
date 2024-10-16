@@ -111,7 +111,7 @@ const PendingArtists = () => {
                             })
                           }
                           onTransactionConfirmed={async () => {
-                            alert("Tier added successfully!");
+                            alert("Artist added successfully!");
                             setIsModalOpen(false);
                             handleResponse(artist, "confirmed");
                           }}

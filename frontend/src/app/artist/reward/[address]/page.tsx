@@ -2,10 +2,9 @@
 import { useEffect, useState } from "react";
 import { fetchArtistByAddress } from "@/api/artists.api";
 import { RewardProps, fetchRewardById, updateReward } from "@/api/reward.api";
-import Link from "next/link";
-import { FaMedal } from "react-icons/fa";
-import { darkTheme, TransactionButton } from "thirdweb/react";
-import { prepareContractCall, waitForReceipt } from "thirdweb";
+import { FaMedal, FaWallet } from "react-icons/fa";
+import { darkTheme, TransactionButton, useReadContract } from "thirdweb/react";
+import { prepareContractCall } from "thirdweb";
 import { contractToken as contract } from "@/contracts/contracts";
 import { toast } from "react-toastify";
 
@@ -18,15 +17,18 @@ interface ArtistDetailProps {
 const Reward = ({ params }: ArtistDetailProps) => {
   const [rewardIds, setRewardIds] = useState<string[]>([]);
   const [message, setMessage] = useState("");
-  const [rewards, setRewards] = useState<RewardProps[]>([]);
 
+  const [rewards, setRewards] = useState<RewardProps[]>([]);
+  const { data, isPending } = useReadContract({
+    contract,
+    method: "function balanceOf(address who) view returns (uint256)",
+    params: [params.address],
+  });
   // Fetch Reward IDs
   useEffect(() => {
     const fetchRewards = async () => {
       try {
         const fetchedArtist = await fetchArtistByAddress(params.address);
-        console.log("Fetched artist rewards:", fetchedArtist?.rewards);
-
         if (fetchedArtist?.rewards && fetchedArtist.rewards.length > 0) {
           const uniqueRewardIds = Array.from(new Set(fetchedArtist.rewards));
           setRewardIds(uniqueRewardIds);
@@ -85,12 +87,18 @@ const Reward = ({ params }: ArtistDetailProps) => {
     const value = num % 100;
     return suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0];
   };
-  //TODO : MAKE THE BOX LIKE THE SCREENSHOT
+
+  const getBalance = async () => {};
+
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold text-center mb-6 flex items-center justify-center">
         Rewards <FaMedal className="ml-2 text-yellow-500" />
       </h1>
+      <div className="top-0 right-0 p-4 flex items-center text-xl">
+        <FaWallet className="mr-2 text-green-500" /> {/* Wallet Icon */}
+        {data ? `${data.toString()} SoundCoin` : "Loading..."}
+      </div>
 
       {message ? (
         <p className="text-center text-gray-700">{message}</p>
@@ -140,7 +148,7 @@ const Reward = ({ params }: ArtistDetailProps) => {
                         })
                       }
                       onTransactionConfirmed={async () => {
-                        alert("Tier added successfully!");
+                        alert("Reward claimed successfully!");
                         handleClaim(reward._id!);
                       }}
                       onError={(error) => alert(`Error: ${error.message}`)}

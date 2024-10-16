@@ -44,6 +44,24 @@ const CustomAudioPlayer = ({
   const [isSubscribed, setIsSubscribed] = useState(false); // Track subscription status
   const [hasShownToast, setHasShownToast] = useState(false); // Track if toast has been shown
 
+  useEffect(() => {
+    const isSub = async () => {
+      if (account) {
+        const userId = await fetchUserByAddress(account?.address);
+        if (userId?._id) {
+          const sub = await isSubscribe(userId._id);
+          if (sub) {
+            console.log(sub);
+            setIsSubscribed(true);
+          } else {
+            setIsSubscribed(false);
+          }
+        }
+      }
+    };
+    isSub();
+  }, []);
+
   const togglePlayPause = () => {
     if (audioRef.current && (isSubscribed || currentTime < 21)) {
       if (isPlaying) {
@@ -151,22 +169,6 @@ const CustomAudioPlayer = ({
     };
     updatePoints();
   }, [listeningTime]);
-  useEffect(() => {
-    const isSub = async () => {
-      if (account) {
-        const userId = await fetchUserByAddress(account?.address);
-        if (userId?._id) {
-          const sub = await isSubscribe(userId._id);
-          if (sub) {
-            setIsSubscribed(true);
-          } else {
-            setIsSubscribed(false);
-          }
-        }
-      }
-    };
-    isSub();
-  }, []);
 
   return (
     <div className="flex items-center bg-black p-6 rounded-lg w-full ">
