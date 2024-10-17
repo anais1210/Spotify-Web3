@@ -40,9 +40,10 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
   useEffect(() => {
     const fetchAlbum = async () => {
       const resultAlbum = await fetchAlbumById(params.id);
+      const artistAddress = await fetchArtistByAddress(account?.address!);
       if (resultAlbum) {
         setAlbum(resultAlbum);
-        if (resultAlbum.address === account?.address) {
+        if (artistAddress?.albums?.includes(params.id)) {
           setOwner(true);
         }
       } else {
@@ -80,7 +81,6 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
 
   const handleAddSong = (newSong: TitleProps) => {
     setTitles((prevTitles) => [...prevTitles, newSong]);
-    console.log("New song data:", newSong);
     setIsModalOpen(false); // Close the modal after submission
   };
 
@@ -202,7 +202,12 @@ const AlbumPage = ({ params }: AlbumDetailProps) => {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <h2 className="text-xl mb-4">Add a New Song</h2>
         <AddSong
-          album={{ _id: album._id, name: album.name, author: album.author }}
+          album={{
+            _id: album._id,
+            name: album.name,
+            author: album.author,
+            address: album.address,
+          }}
           onSubmit={handleAddSong}
         />
       </Modal>

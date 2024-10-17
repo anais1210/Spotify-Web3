@@ -221,7 +221,7 @@ const ArtistRegistration = () => {
           </h1>
           <ConnectButton
             client={client}
-            connectButton={{ label: "Register to ontinue ->" }}
+            connectButton={{ label: "Register to ontinue -->" }}
             theme={darkTheme()}
             detailsButton={{
               style: {
@@ -238,7 +238,7 @@ const ArtistRegistration = () => {
           </h1>
           <ConnectButton
             client={client}
-            connectButton={{ label: "Register to ontinue ->" }}
+            connectButton={{ label: "Register to ontinue -->" }}
             theme={darkTheme()}
             detailsButton={{
               style: {

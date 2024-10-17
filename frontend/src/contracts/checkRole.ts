@@ -38,7 +38,6 @@ export const useUserRole = (account: any): UserRole => {
           method: "function isStaff(address account) view returns (string)",
           params: [account.address],
         });
-
         setIsAdmin(role === "admin");
         setIsArtist(role === "artist");
       } catch (error) {
@@ -71,7 +70,7 @@ export const useArtistStatus = (account: any): ArtistStatus => {
 
       try {
         const artistData = await fetchArtistByAddress(account.address);
-        if (artistData) {
+        if (artistData && artistData.status) {
           setStatus(artistData.status); // Assuming `artistData` has a `status` field
         }
       } catch (error) {

@@ -43,8 +43,6 @@ contract Staff is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
     function isStaff(address account) public view returns (string memory) {
         return _staff[account];
     }
-    
-
 
     function _addStaff(address account, string memory role) internal {
         _staff[account] = role;

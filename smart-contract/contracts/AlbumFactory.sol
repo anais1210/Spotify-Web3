@@ -12,6 +12,7 @@ contract AlbumFactory is UUPSUpgradeable{
     address[] public deployedAlbums;
     Staff private staffContract;
     SoundNFT[] public deployedSoundNFT;
+
     
     modifier onlyArtist() {
         require(keccak256(abi.encodePacked(staffContract.isStaff(msg.sender))) == keccak256(abi.encodePacked("artist")), "Caller is not an artist");

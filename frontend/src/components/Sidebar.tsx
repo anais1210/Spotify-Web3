@@ -7,10 +7,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useUserRole } from "@/contracts/checkRole";
 import { useActiveAccount } from "thirdweb/react";
+import { useState } from "react";
 
 const Sidebar = () => {
   const account = useActiveAccount();
   const { isAdmin, isArtist, walletAddress } = useUserRole(account);
+  const [isSub, setIsSub] = useState(false);
 
   return (
     <div className="w-64 p-4 bg-gray-900 flex flex-col justify-between">
@@ -52,7 +54,7 @@ const Sidebar = () => {
         {isArtist && (
           <div className="mb-8">
             <h2 className="text-xl font-bold">Your Library</h2>
-            <Link href="/artist/album/create">
+            <Link href={`/artist/album/create/${account?.address}`}>
               <button className="mt-4 flex items-center justify-between w-full py-2 px-4 bg-gray-800 rounded-lg">
                 <span>Create an album</span>
                 <FaPlus />
@@ -69,12 +71,12 @@ const Sidebar = () => {
         {isAdmin && (
           <div className="mb-8">
             <hr className="border-t border-gray-600 m-4" />
-            <Link href="/admin/addAdmin" passHref>
+            {/* <Link href="/admin/addAdmin" passHref>
               <button className="mt-4 flex items-center justify-between w-full py-2 px-4 bg-gray-800 rounded-lg">
                 <span>Add Admin</span>
                 <FaPlus />
               </button>
-            </Link>
+            </Link> */}
             <Link href="/admin/pendingArtist" passHref>
               <button className="mt-4 flex items-center justify-between w-full py-2 px-4 bg-gray-800 rounded-lg">
                 <span>List of Artists</span>
@@ -86,9 +88,10 @@ const Sidebar = () => {
       </div>
 
       {/* Subscription Section */}
-      {!isArtist && (
+      {!isArtist && !isAdmin && (
         <div className="mt-auto mb-4">
           <div className="mt-4">
+            {}
             <Link href="/subscription" passHref>
               <div className="bg-purple-500 text-center py-2 rounded-lg">
                 <p className="text-white">Prenium Subscription</p>

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { client } from "@/app/client";
 import { addAlbum, AlbumProps } from "@/api/albums.api";
 import { toast } from "react-toastify";
@@ -12,29 +12,31 @@ import {
 } from "thirdweb/react";
 import { useUserRole, useArtistStatus } from "@/contracts/checkRole";
 import { ArtistProps, updateArtist } from "@/api/artists.api";
-import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import "react-toastify/dist/ReactToastify.css";
-import { prepareContractCall } from "thirdweb";
+import { defineChain, prepareContractCall } from "thirdweb";
 import FileUpload from "@/components/FileUpload";
 
-const CreateAlbum = () => {
-  const account = useActiveAccount();
-  const { isArtist } = useUserRole(account);
-  const { status } = useArtistStatus(account);
+interface ArtistDetailProps {
+  params: {
+    address: string;
+  };
+}
+
+const CreateAlbum = ({ params }: ArtistDetailProps) => {
+  const { isArtist } = useUserRole(params);
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
   // Album state
   const [album, setAlbum] = useState<AlbumProps>({
-    address: account?.address || "",
+    address: "",
     name: "",
     author: "",
     img: "",
   });
 
   const [artist, setArtist] = useState<ArtistProps>({
-    address: account?.address || "",
+    address: params.address,
     albums: [""],
   });
 
@@ -52,22 +54,24 @@ const CreateAlbum = () => {
   };
 
   // Form submission handler
-  const handleSubmit = async () => {
+  const handleSubmit = async (newAlbumAddress: string) => {
     try {
-      const artistAddress = await artist.address;
-      if (artistAddress) {
-        const albumSuccess = await addAlbum(album);
-        console.log(albumSuccess?._id);
-        console.log(artist.address);
+      const updatedAlbum = {
+        ...album,
+        address: newAlbumAddress,
+      };
+
+      if (params.address) {
+        const albumSuccess = await addAlbum(updatedAlbum);
         if (albumSuccess && artist.address && albumSuccess._id) {
-          console.log(albumSuccess?._id);
+          console.log(albumSuccess._id);
           console.log(artist.address);
           await updateArtist({
-            address: artist.address,
+            address: params.address,
             albums: [albumSuccess._id],
           });
           toast.success("Album created successfully!");
-          router.push(`/artist/album/list/${artistAddress}`);
+          router.push(`/artist/album/list/${params.address}`);
         }
       } else {
         throw new Error("Failed to register album or update artist.");
@@ -138,13 +142,14 @@ const CreateAlbum = () => {
                         "0x5604b74F621f030926712D8b0F76C57040e0231C",
                     ],
                   });
-                  console.log("tx", tx);
                   return tx;
                 }}
-                onTransactionConfirmed={async () => {
-                  alert("Album created successfully!");
+                onTransactionConfirmed={async (receipt) => {
+                  console.log("contract address", receipt.logs[0].address);
+                  const newAbumAddress = receipt.logs[0].address;
+                  alert("Album created successfully");
                   setIsModalOpen(false);
-                  await handleSubmit();
+                  await handleSubmit(newAbumAddress);
                 }}
                 onError={(error) => alert(`${error.message}`)}
                 theme={darkTheme()}
@@ -162,7 +167,7 @@ const CreateAlbum = () => {
           </h1>
           <ConnectButton
             client={client}
-            connectButton={{ label: "Register to continue ->" }}
+            connectButton={{ label: "Register to continue -->" }}
             theme={darkTheme()}
           />
         </div>

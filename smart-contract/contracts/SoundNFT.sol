@@ -34,10 +34,11 @@ contract SoundNFT is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
 
     }
 
-    function safeMint(address to, string memory uri) public onlyArtist {
+    function safeMint(address to, string memory uri) public onlyArtist returns(uint256) {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+        return tokenId; 
     }
 
 

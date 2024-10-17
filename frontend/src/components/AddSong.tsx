@@ -4,8 +4,10 @@ import { FaPlus } from "react-icons/fa";
 import { addTitle, TitleProps } from "@/api/titles.api";
 import { AlbumProps, updateAlbum } from "@/api/albums.api";
 import FileUpload from "./FileUpload";
-import { useActiveAccount } from "thirdweb/react";
-import { toast, ToastContainer } from "react-toastify";
+import { darkTheme, TransactionButton, useActiveAccount } from "thirdweb/react";
+import { toast } from "react-toastify";
+import { defineChain, getContract, prepareContractCall } from "thirdweb";
+import { client } from "@/app/client";
 
 interface AddSongProps {
   album: AlbumProps;
@@ -13,24 +15,27 @@ interface AddSongProps {
 }
 
 const AddSong: React.FC<AddSongProps> = ({ album, onSubmit }) => {
+  const contract = getContract({
+    client,
+    chain: defineChain(80002),
+    address: album.address!,
+  });
   const account = useActiveAccount();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [songTitle, setSongTitle] = useState<string>("");
   const [audioUrl, setAudioUrl] = useState<string>("");
 
   const [uploadStatus, setUploadStatus] = useState<string>("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     if (songTitle) {
-      // if (audioUrl && songTitle) {
       const songData: TitleProps = {
         address: account?.address || "",
         name: songTitle,
         author: album.author,
         album: album._id,
-        // audio: audioUrl,
+        audio: audioUrl,
       };
 
       try {
@@ -52,19 +57,22 @@ const AddSong: React.FC<AddSongProps> = ({ album, onSubmit }) => {
         console.error("Error adding song:", error);
       }
     } else {
-      console.error("Please provide a song title ");
+      console.error("Please provide a song title.");
     }
   };
 
   const handleFileUpload = (uploadedAudioUrl: string) => {
     setAudioUrl(uploadedAudioUrl);
+    console.log(audioUrl);
   };
 
   return (
     <div>
-      <ToastContainer />
-
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+      >
         {/* Song Title Input */}
         <div className="mb-4">
           <label className="block text-gray-300">Song Title</label>
@@ -82,13 +90,23 @@ const AddSong: React.FC<AddSongProps> = ({ album, onSubmit }) => {
           <FileUpload onFileUpload={handleFileUpload} />
         </div>
 
-        <button
-          type="submit"
-          className="flex items-center bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-black py-3 px-6 rounded-full shadow-md transition duration-200 ease-in-out transform hover:scale-105"
+        <TransactionButton
+          transaction={() =>
+            prepareContractCall({
+              contract: contract,
+              method: "function safeMint(address to, string memory uri)",
+              params: [account?.address!, "htts://ipfs.io/ipfs/"],
+            })
+          }
+          onTransactionConfirmed={async (receipt) => {
+            await handleSubmit(); // Submit the song data after the transaction is confirmed
+          }}
+          onError={(error) => toast.error(`Error: ${error.message}`)}
+          theme={darkTheme()}
+          className="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-black py-3 px-6 rounded-full shadow-md transition duration-200 ease-in-out transform hover:scale-105"
         >
-          <FaPlus className="mr-2" style={{ verticalAlign: "middle" }} />
-          <span className="align-middle">Add Song</span>
-        </button>
+          <span className="align-middle">+ Add Song</span>
+        </TransactionButton>
       </form>
     </div>
   );
