@@ -70,7 +70,6 @@ const Navbar = () => {
       const exist = await fetchUserByAddress(address);
       if (!exist) {
         const response = await addUser({ address: address });
-        console.log("user added");
       }
     } catch (error) {
       console.log(error);

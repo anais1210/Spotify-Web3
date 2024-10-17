@@ -97,24 +97,26 @@ const ArtistRegistration = () => {
         const email = await getUserEmail({ client });
         if (email) {
           user.email = email;
-          console.log(email);
         }
-        console.log(user.address);
         const userExist = await fetchUserByAddress(account.address);
-        if (user) {
-          toast.info(
-            "Regular user cannot be artist and user at the same time. Please use another account to be registered as an artist."
-          );
-          return;
-        }
-        const userSuccess = await addUser(user);
-        const artistSuccess = await addArtist(artist);
-
-        if (userSuccess && artistSuccess != null) {
-          toast.success("Artist registered successfully!");
-          router.push("/");
+        if (!userExist) {
+          const userSuccess = await addUser(user);
+          const artistSuccess = await addArtist(artist);
+          if (userSuccess && artistSuccess != null) {
+            toast.success("Artist registered successfully!");
+            router.push("/");
+          } else {
+            throw new Error("Failed to register user or artist.");
+          }
         } else {
-          throw new Error("Failed to register user or artist.");
+          const update = await updateUser(account.address, user);
+          const artistSuccess = await addArtist(artist);
+          if (update && artistSuccess != null) {
+            toast.success("Artist registered successfully!");
+            router.push("/");
+          } else {
+            throw new Error("Failed to register user or artist.");
+          }
         }
       } else {
         toast.error("No address detected.");

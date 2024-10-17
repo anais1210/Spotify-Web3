@@ -1,9 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { fetchUsersOnRole, User } from "@/api/user.api";
+import { fetchUserByAddress, fetchUsersOnRole, User } from "@/api/user.api";
 import { ArtistProps, fetchArtists, updateArtist } from "@/api/artists.api";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Toast notifications
 import { toast } from "react-toastify";
 import { prepareContractCall } from "thirdweb";
 import { contractStaff as contract } from "@/contracts/contracts";
@@ -11,25 +9,22 @@ import { darkTheme, TransactionButton, useActiveAccount } from "thirdweb/react";
 const PendingArtists = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const account = useActiveAccount();
-  const [pendingUserArtists, setPendingUserArtists] = useState<
-    (User & ArtistProps)[]
-  >([]);
+  const [allArtist, setAllArtist] = useState<(User & ArtistProps)[]>([]);
 
   useEffect(() => {
     const fetchAllArtists = async () => {
       try {
-        const users = await fetchUsersOnRole("artist");
         const artists = await fetchArtists();
-
-        // Combine the user and artist data based on their address
-        if (users && artists) {
-          const combinedData = users.map((user) => ({
-            ...user,
-            ...artists.find((artist) => artist.address === user.address),
-          }));
-
-          setPendingUserArtists(combinedData);
-          console.log(combinedData);
+        if (artists) {
+          const artistDetailsPromises = artists.map(async (artist) => {
+            const user = await fetchUserByAddress(artist.address!);
+            return {
+              ...artist,
+              user: user,
+            };
+          });
+          const artistDetails = await Promise.all(artistDetailsPromises);
+          setAllArtist(artistDetails);
         }
       } catch (err) {
         console.error("Error fetching pending artists:", err);
@@ -67,7 +62,7 @@ const PendingArtists = () => {
 
   return (
     <div className="p-8 min-h-screen bg-gray-900 text-white">
-      <h2 className="text-3xl font-bold mb-8">Pending Artists</h2>
+      <h2 className="text-3xl font-bold mb-8">All Artists</h2>
       <div className="overflow-x-auto">
         <table className="w-full table-auto border-collapse">
           <thead>
@@ -81,22 +76,30 @@ const PendingArtists = () => {
             </tr>
           </thead>
           <tbody>
-            {pendingUserArtists.length > 0 ? (
-              pendingUserArtists.map((artist) => (
+            {allArtist.length > 0 ? (
+              allArtist.map((artist) => (
                 <tr
                   key={artist.address}
                   className="bg-gray-800 border-b border-gray-700"
                 >
-                  <td className="py-3 px-6">{artist.firstname}</td>
-                  <td className="py-3 px-6">{artist.lastname}</td>
-                  <td className="py-3 px-6">{artist.address}</td>
-                  <td className="py-3 px-6">{artist.email}</td>
                   <td className="py-3 px-6">
-                    <img
-                      src={artist.profile}
-                      alt="Profile"
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
+                    {artist.user?.firstname || "N/A"}
+                  </td>
+                  <td className="py-3 px-6">
+                    {artist.user?.lastname || "N/A"}
+                  </td>
+                  <td className="py-3 px-6">{artist.address}</td>
+                  <td className="py-3 px-6">{artist.user?.email || "N/A"}</td>
+                  <td className="py-3 px-6">
+                    {artist.user?.profile ? (
+                      <img
+                        src={artist.user.profile}
+                        alt="Profile"
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      "No Profile"
+                    )}
                   </td>
                   <td className="py-3 px-6 text-center">
                     {artist.status === "pending" ? (
@@ -136,8 +139,8 @@ const PendingArtists = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="py-6 text-center text-gray-400">
-                  No pending artists found.
+                <td colSpan={6} className="py-6 text-center text-gray-400">
+                  No pending artist found.
                 </td>
               </tr>
             )}

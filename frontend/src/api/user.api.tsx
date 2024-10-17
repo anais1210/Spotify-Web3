@@ -47,7 +47,6 @@ export const fetchUsersOnRole = async (
 export const addUser = async (UserData: User): Promise<User | null> => {
   try {
     const response = await axios.post<User>(`${api}/user/create`, UserData);
-    console.log(response.data);
     return response.data;
   } catch (err) {
     console.error(err);

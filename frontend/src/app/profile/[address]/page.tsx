@@ -23,7 +23,7 @@ const Profile = ({ params }: UserDetailProps) => {
     email: "",
     address: params.address, // Initialize with address
     banned: false,
-    role: "user",
+    role: "",
     profile: "",
   });
 
@@ -40,7 +40,7 @@ const Profile = ({ params }: UserDetailProps) => {
             email: fetchedUser.email || userEmail || "",
             address: fetchedUser.address || params.address, // Use fetched address
             banned: fetchedUser.banned || false,
-            role: fetchedUser.role || "user",
+            role: fetchedUser.role || "",
             profile: fetchedUser.profile || "",
           });
         } else {

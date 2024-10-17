@@ -7,12 +7,27 @@ import Link from "next/link";
 import Image from "next/image";
 import { useUserRole } from "@/contracts/checkRole";
 import { useActiveAccount } from "thirdweb/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { isSubscribe } from "@/api/subscription.api";
+import { fetchUserByAddress } from "@/api/user.api";
 
 const Sidebar = () => {
   const account = useActiveAccount();
   const { isAdmin, isArtist, walletAddress } = useUserRole(account);
   const [isSub, setIsSub] = useState(false);
+
+  useEffect(() => {
+    const subscription = async () => {
+      const user = await fetchUserByAddress(account?.address!);
+      if (user && user._id) {
+        const subs = await isSubscribe(user._id);
+        if (subs) {
+          setIsSub(true);
+        }
+      }
+    };
+    subscription();
+  }, [account?.address]);
 
   return (
     <div className="w-64 p-4 bg-gray-900 flex flex-col justify-between">
@@ -91,12 +106,13 @@ const Sidebar = () => {
       {!isArtist && !isAdmin && (
         <div className="mt-auto mb-4">
           <div className="mt-4">
-            {}
-            <Link href="/subscription" passHref>
-              <div className="bg-purple-500 text-center py-2 rounded-lg">
-                <p className="text-white">Prenium Subscription</p>
-              </div>
-            </Link>
+            {!isSub && (
+              <Link href="/subscription" passHref>
+                <div className="bg-purple-500 text-center py-2 rounded-lg">
+                  <p className="text-white">Prenium Subscription</p>
+                </div>
+              </Link>
+            )}
           </div>
           <div className="mt-4">
             <Link href="/artist/register" passHref>
