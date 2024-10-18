@@ -49,29 +49,7 @@ const CustomAudioPlayer = ({
   const [isSubscribed, setIsSubscribed] = useState(false); // Track subscription status
   const [hasShownToast, setHasShownToast] = useState(false); // Track if toast has been shown
   const [allArtist, setAllArtist] = useState<ArtistProps[]>([]);
-  const fetchArtistForAlbum = async () => {
-    try {
-      // Fetch all artists
-      const allArtists: ArtistProps[] | null = await fetchArtists();
-      if (!allArtists) {
-        console.error("No artists found");
-        return;
-      }
-      // Find the artist whose albums array contains the current album ID
-      const foundArtist = allArtists.find((artist) =>
-        artist.albums?.includes(album._id!)
-      );
-
-      if (foundArtist) {
-        setArtist(foundArtist);
-        console.log("Artist found:", foundArtist);
-      } else {
-        console.log("No artist found for this album");
-      }
-    } catch (error) {
-      console.error("Error fetching artists:", error);
-    }
-  };
+  const [lastUpdated, setLastUpdated] = useState(0);
 
   useEffect(() => {
     const isSub = async () => {
@@ -171,26 +149,15 @@ const CustomAudioPlayer = ({
   }, [isPlaying]);
 
   useEffect(() => {
-    if (audioRef.current) {
-      const audio = audioRef.current;
-
-      const handleTimeUpdate = () => {
-        if (isPlaying) {
-          setListeningTime((prev) => prev + 1); // Increment listening time
-        }
-      };
-
-      const interval = setInterval(handleTimeUpdate, 1000); // Check every second
-
-      return () => clearInterval(interval);
-    }
-  }, [isPlaying]);
-
-  useEffect(() => {
     const updatePoints = async () => {
       // Add points every 10 seconds of listening
-      if (listeningTime % 10 === 0 && listeningTime > 0) {
-        setPoints((prevPoints) => prevPoints + 1);
+      if (
+        listeningTime > 0 &&
+        listeningTime % 10 === 0 &&
+        listeningTime !== lastUpdated
+      ) {
+        setLastUpdated(listeningTime); // update last updated time
+        setPoints((prevPoints) => prevPoints + 1); // Increment points
 
         if (album && album._id) {
           const fetchAddress = await fetchAlbumById(album._id);
@@ -206,10 +173,8 @@ const CustomAudioPlayer = ({
                 setAllArtist(artists);
 
                 for (const artist of artists) {
-                  const albumExists = artist.albums?.includes(album._id);
-
                   // Check if the album exists in the artist's albums
-                  if (albumExists) {
+                  if (artist.albums?.includes(album._id)) {
                     const updateReward = await updateArtist({
                       address: artist.address,
                       rewards: [addPoints._id],
@@ -231,6 +196,7 @@ const CustomAudioPlayer = ({
 
     updatePoints();
   }, [listeningTime, album]);
+
   return (
     <div className="flex items-center bg-black p-6 rounded-lg w-full ">
       <img
