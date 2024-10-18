@@ -10,7 +10,12 @@ import {
 import { AlbumProps, fetchAlbumById } from "@/api/albums.api";
 import { TitleProps } from "@/api/titles.api";
 import { addReward } from "@/api/reward.api";
-import { ArtistProps, updateArtist } from "@/api/artists.api";
+import {
+  fetchArtistByAddress,
+  updateArtist,
+  fetchArtists,
+  ArtistProps,
+} from "@/api/artists.api";
 import { isSubscribe } from "@/api/subscription.api";
 import { fetchUserByAddress } from "@/api/user.api";
 import { useActiveAccount } from "thirdweb/react";
@@ -43,6 +48,30 @@ const CustomAudioPlayer = ({
   const account = useActiveAccount();
   const [isSubscribed, setIsSubscribed] = useState(false); // Track subscription status
   const [hasShownToast, setHasShownToast] = useState(false); // Track if toast has been shown
+  const [allArtist, setAllArtist] = useState<ArtistProps[]>([]);
+  const fetchArtistForAlbum = async () => {
+    try {
+      // Fetch all artists
+      const allArtists: ArtistProps[] | null = await fetchArtists();
+      if (!allArtists) {
+        console.error("No artists found");
+        return;
+      }
+      // Find the artist whose albums array contains the current album ID
+      const foundArtist = allArtists.find((artist) =>
+        artist.albums?.includes(album._id!)
+      );
+
+      if (foundArtist) {
+        setArtist(foundArtist);
+        console.log("Artist found:", foundArtist);
+      } else {
+        console.log("No artist found for this album");
+      }
+    } catch (error) {
+      console.error("Error fetching artists:", error);
+    }
+  };
 
   useEffect(() => {
     const isSub = async () => {
@@ -142,10 +171,27 @@ const CustomAudioPlayer = ({
   }, [isPlaying]);
 
   useEffect(() => {
+    if (audioRef.current) {
+      const audio = audioRef.current;
+
+      const handleTimeUpdate = () => {
+        if (isPlaying) {
+          setListeningTime((prev) => prev + 1); // Increment listening time
+        }
+      };
+
+      const interval = setInterval(handleTimeUpdate, 1000); // Check every second
+
+      return () => clearInterval(interval);
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
     const updatePoints = async () => {
-      // Ajoute des points tous les 10 secondes d'écoute
+      // Add points every 10 seconds of listening
       if (listeningTime % 10 === 0 && listeningTime > 0) {
         setPoints((prevPoints) => prevPoints + 1);
+
         if (album && album._id) {
           const fetchAddress = await fetchAlbumById(album._id);
           if (fetchAddress && fetchAddress.address) {
@@ -153,23 +199,38 @@ const CustomAudioPlayer = ({
               name: `Reward`,
               amount: 2000,
             });
+
             if (addPoints && addPoints._id) {
-              const updateReward = await updateArtist({
-                address: fetchAddress.address,
-                rewards: [addPoints._id],
-              });
-              if (updateReward) {
-                console.log("success update and add reward");
+              const artists = await fetchArtists();
+              if (artists && artists.length > 0) {
+                setAllArtist(artists);
+
+                for (const artist of artists) {
+                  const albumExists = artist.albums?.includes(album._id);
+
+                  // Check if the album exists in the artist's albums
+                  if (albumExists) {
+                    const updateReward = await updateArtist({
+                      address: artist.address,
+                      rewards: [addPoints._id],
+                    });
+
+                    if (updateReward) {
+                      console.log(
+                        "Successfully updated artist and added reward"
+                      );
+                    }
+                  }
+                }
               }
             }
           }
         }
-        console.log(album);
       }
     };
-    updatePoints();
-  }, [listeningTime]);
 
+    updatePoints();
+  }, [listeningTime, album]);
   return (
     <div className="flex items-center bg-black p-6 rounded-lg w-full ">
       <img

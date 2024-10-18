@@ -97,7 +97,7 @@ const Reward = ({ params }: ArtistDetailProps) => {
       </h1>
       <div className="top-0 right-0 p-4 flex items-center text-xl">
         <FaWallet className="mr-2 text-green-500" /> {/* Wallet Icon */}
-        {data ? `${data.toString()} SoundCoin` : "Loading..."}
+        {data ? `${data.toString()} SoundCoin` : "0 SoundCoin"}
       </div>
 
       {message ? (
