@@ -8,4 +8,8 @@ Staff contract address : 0x5604b74F621f030926712D8b0F76C57040e0231C (https://amo
 
 Factory contract address : 0x4BF9FEbb3BF18Ff5cdce8E8271e0752b9e4D62f9 (https://amoy.polygonscan.com/address/0x4bf9febb3bf18ff5cdce8e8271e0752b9e4d62f9)
 
-Tools for subscription used -- classmate project Sub Protocol
+Tools for subscription used -- classmate project Subs Protocol -- https://subsprotocol.com/
+
+Technical stack (All code in typescript): 
+Node.js, MongoDB, Next.js, Thirdweb, IPFS
+
