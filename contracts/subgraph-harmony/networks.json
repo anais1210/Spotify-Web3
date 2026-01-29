@@ -1,0 +1,8 @@
+{
+  "sepolia": {
+    "Harmony": {
+      "address": "0x237ACDED68c96A38968319942420C4D012e874Df",
+      "startBlock": 10147408
+    }
+  }
+}
