@@ -3,6 +3,9 @@
     "Harmony": {
       "address": "0x237ACDED68c96A38968319942420C4D012e874Df",
       "startBlock": 10147408
+    },
+    "ERC1967Proxy": {
+      "address": "0x9cECFa077a22cacaA1Fc039548c7cFDc8c624946"
     }
   }
 }

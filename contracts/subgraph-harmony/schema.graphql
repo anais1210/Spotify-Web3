@@ -5,3 +5,29 @@ type Upgraded @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+type ERC1967ProxyUpgraded @entity(immutable: true) {
+  id: Bytes!
+  implementation: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Album @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+  artist: String!
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+  songs: [Song!] @derivedFrom(field: "album")
+}
+type Song @entity {
+  id: ID!
+  tokenId: BigInt!
+  album: Album!
+  owner: String!
+  uri: String!
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+}
