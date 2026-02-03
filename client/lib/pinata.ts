@@ -182,3 +182,125 @@ export function ipfsToHttp(ipfsUri: string): string {
   }
   return ipfsUri;
 }
+
+// Fetch metadata from IPFS
+export async function fetchMetadataFromIPFS(uri: string): Promise<SongMetadata | null> {
+  try {
+    const httpUrl = ipfsToHttp(uri);
+    const response = await fetch(httpUrl);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
+// Cache for album metadata (stored in localStorage)
+const ALBUM_METADATA_KEY = "album_metadata_cache";
+
+export function getAlbumMetadataCache(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  try {
+    const cache = localStorage.getItem(ALBUM_METADATA_KEY);
+    return cache ? JSON.parse(cache) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function setAlbumMetadataCache(albumAddress: string, metadataUri: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    const cache = getAlbumMetadataCache();
+    cache[albumAddress.toLowerCase()] = metadataUri;
+    localStorage.setItem(ALBUM_METADATA_KEY, JSON.stringify(cache));
+  } catch {
+    // Ignore localStorage errors
+  }
+}
+
+export function getAlbumMetadataUri(albumAddress: string): string | null {
+  const cache = getAlbumMetadataCache();
+  return cache[albumAddress.toLowerCase()] || null;
+}
+
+// Album metadata interface
+export interface AlbumMetadata {
+  name: string;
+  description: string;
+  image: string;
+  symbol: string;
+  artistAddress?: string;
+}
+
+// Upload album metadata to IPFS
+export async function uploadAlbumToPinata(params: {
+  coverImage: File;
+  name: string;
+  symbol: string;
+  description?: string;
+  artistAddress?: string;
+}): Promise<string> {
+  const { coverImage, name, symbol, description, artistAddress } = params;
+
+  // 1. Upload cover image
+  const imageUri = await uploadFileToPinata(coverImage, `${name}-album-cover`);
+
+  // 2. Create album metadata
+  const metadata: AlbumMetadata = {
+    name,
+    symbol,
+    description: description || `${name} - Music Album`,
+    image: imageUri,
+    artistAddress,
+  };
+
+  // 3. Upload metadata
+  const apiKey = getApiKey();
+  const apiSecret = getApiSecret();
+
+  if (!apiKey || !apiSecret) {
+    throw new Error("Pinata API keys not configured.");
+  }
+
+  const response = await fetch(`${PINATA_API_URL}/pinning/pinJSONToIPFS`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      pinata_api_key: apiKey,
+      pinata_secret_api_key: apiSecret,
+    },
+    body: JSON.stringify({
+      pinataContent: metadata,
+      pinataMetadata: {
+        name: `${name}-album-metadata.json`,
+      },
+      pinataOptions: {
+        cidVersion: 1,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to upload album metadata");
+  }
+
+  const data: PinataResponse = await response.json();
+  return `ipfs://${data.IpfsHash}`;
+}
+
+// Fetch album metadata
+export async function fetchAlbumMetadata(albumAddress: string): Promise<AlbumMetadata | null> {
+  const uri = getAlbumMetadataUri(albumAddress);
+  if (!uri) return null;
+
+  try {
+    const httpUrl = ipfsToHttp(uri);
+    const response = await fetch(httpUrl);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  }
+}

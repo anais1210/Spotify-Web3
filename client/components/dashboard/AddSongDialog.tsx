@@ -185,7 +185,7 @@ function AddSongDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-zinc-900 border-2 border-zinc-600 text-white sm:max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center gap-2">
             <Music className="w-5 h-5 text-primary" />

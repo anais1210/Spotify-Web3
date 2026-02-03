@@ -6,6 +6,8 @@ import Footer from "../components/layout/Footer";
 import Web3Provider from "@/components/providers/Web3Provider";
 import { Space_Grotesk, Inter } from "next/font/google";
 import Providers from "./Provider";
+import { PlayerProvider } from "@/contexts/PlayerContext";
+import { MusicPlayer } from "@/components/player";
 
 const inter = Inter({ subsets: ["latin"] });
 const spaceGrotesk = Space_Grotesk({
@@ -28,11 +30,14 @@ export default function RootLayout({
       <body className={`${inter.className} font-body`}>
         <Web3Provider>
           <Providers>
-            <div className="min-h-screen flex flex-col">
-              <Header />
-              <main className="flex-1 pt-16">{children}</main>
-              <Footer />
-            </div>
+            <PlayerProvider>
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1 pt-16 pb-20">{children}</main>
+                <Footer />
+                <MusicPlayer />
+              </div>
+            </PlayerProvider>
           </Providers>
         </Web3Provider>
       </body>
