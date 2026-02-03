@@ -12,6 +12,15 @@ contract AlbumFactory is Initializable, AccessControlUpgradeable, UUPSUpgradeabl
     Management public management;
     HarmonyNFT[] public deployedAlbums;
 
+    // Event emitted when a new album is created - essential for The Graph indexing
+    event AlbumCreated(
+        address indexed albumAddress,
+        address indexed artist,
+        string name,
+        string symbol,
+        uint256 timestamp
+    );
+
     function initialize(address managementAddress) public initializer {
         __AccessControl_init();
         __UUPSUpgradeable_init();
@@ -22,9 +31,12 @@ contract AlbumFactory is Initializable, AccessControlUpgradeable, UUPSUpgradeabl
         require(management.isArtist(msg.sender), "Only artists can create albums");
         _createAlbum(name, symbol);
     }
+
     function _createAlbum(string memory name, string memory symbol) internal {
         HarmonyNFT harmonyNFT = new HarmonyNFT(msg.sender, name, symbol);
         deployedAlbums.push(harmonyNFT);
+
+        emit AlbumCreated(address(harmonyNFT), msg.sender, name, symbol, block.timestamp);
     }
 
     function _getDeployedAlbums() public view returns (HarmonyNFT[] memory) {

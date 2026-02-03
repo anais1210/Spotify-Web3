@@ -2,10 +2,11 @@ import ManagementABI from "./abis/Management.json";
 import AlbumFactoryABI from "./abis/AlbumFactory.json";
 import HarmonyNFTABI from "./abis/HarmonyNFT.json";
 
+// Sepolia deployed addresses (from deployedAddresses.json)
 const DEPLOYED_ADDRESSES = {
-  management: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-  albumFactory: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-  harmony: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+  management: "0x732D55203CD9bd474d1125aeca18619c8bebA55F",
+  albumFactory: "0x05ffd27905dcAC3171Ccc80d40eDaF93DB523c3B",
+  harmony: "0x24120Dbe0C367dAFdd65f05860F9b3E03d905F8c",
 };
 
 export const contracts = {
@@ -18,6 +19,6 @@ export const contracts = {
     abi: AlbumFactoryABI.abi,
   },
   harmonyNFT: {
-    abi: AlbumFactoryABI.abi,
+    abi: HarmonyNFTABI.abi,
   },
 };

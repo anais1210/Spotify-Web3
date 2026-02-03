@@ -9,6 +9,14 @@ import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/
 contract HarmonyNFT is ERC721, ERC721URIStorage, Ownable {
    uint256 private _nextTokenId;
 
+    // Event emitted when a song is minted - essential for The Graph indexing
+    event SongMinted(
+        uint256 indexed tokenId,
+        address indexed to,
+        string uri,
+        uint256 timestamp
+    );
+
     constructor(address initialOwner, string memory name, string memory symbol)
         ERC721(name, symbol)
         Ownable(initialOwner)
@@ -22,6 +30,8 @@ contract HarmonyNFT is ERC721, ERC721URIStorage, Ownable {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+
+        emit SongMinted(tokenId, to, uri, block.timestamp);
         return tokenId;
     }
 

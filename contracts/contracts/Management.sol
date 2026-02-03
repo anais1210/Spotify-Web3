@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.28;
 
-
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -11,6 +10,9 @@ contract Management is Initializable, AccessControlUpgradeable, UUPSUpgradeable 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN");
     bytes32 public constant ARTIST_ROLE = keccak256("ARTIST");
 
+    // Events for artist management - used by The Graph
+    event ArtistAdded(address indexed artist, address indexed addedBy, uint256 timestamp);
+    event ArtistRemoved(address indexed artist, address indexed removedBy, uint256 timestamp);
 
     function initialize(address admin)
         initializer public
@@ -20,7 +22,7 @@ contract Management is Initializable, AccessControlUpgradeable, UUPSUpgradeable 
 
         _grantRole(ADMIN_ROLE, admin);
         _setRoleAdmin(ARTIST_ROLE, ADMIN_ROLE); // ADMIN > ARTIST
-       
+
     }
 
     function _addArtist(address account) internal{
@@ -31,9 +33,11 @@ contract Management is Initializable, AccessControlUpgradeable, UUPSUpgradeable 
     }
     function addArtist(address account) external onlyRole(ADMIN_ROLE) {
         _addArtist(account);
+        emit ArtistAdded(account, msg.sender, block.timestamp);
     }
     function removeArtist(address account) external onlyRole(ADMIN_ROLE) {
         _removeArtist(account);
+        emit ArtistRemoved(account, msg.sender, block.timestamp);
     }
     function _isArtist(address account) internal view returns (bool) {
         return hasRole(ARTIST_ROLE, account);

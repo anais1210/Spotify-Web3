@@ -1,11 +1,14 @@
 {
   "sepolia": {
-    "Harmony": {
-      "address": "0x237ACDED68c96A38968319942420C4D012e874Df",
-      "startBlock": 10147408
-    },
-    "ERC1967Proxy": {
-      "address": "0x9cECFa077a22cacaA1Fc039548c7cFDc8c624946"
+    "AlbumFactory": {
+      "address": "0x173Df2b5669a7b1F44b8739ADf6A876421b0f5fD",
+      "startBlock": 10147410
+    }
+  },
+  "localhost": {
+    "AlbumFactory": {
+      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "startBlock": 0
     }
   }
 }

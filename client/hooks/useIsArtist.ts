@@ -4,8 +4,8 @@ import { contracts } from "@/lib/contracts";
 export function useIsArtist() {
   const { address } = useAccount();
   const { data, isLoading, error } = useReadContract({
-    address: contracts.albumFactory.address,
-    abi: contracts.albumFactory.abi,
+    address: contracts.management.address,
+    abi: contracts.management.abi,
     functionName: "isArtist",
     args: address ? [address] : undefined,
     query: {
@@ -13,7 +13,7 @@ export function useIsArtist() {
     },
   });
   return {
-    albums: data as boolean | undefined,
+    isArtist: data as boolean | undefined,
     isLoading,
     error,
   };
