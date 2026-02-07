@@ -6,6 +6,7 @@ const PINATA_API_URL = "https://api.pinata.cloud";
 // Get API keys from environment variables
 const getApiKey = () => process.env.NEXT_PUBLIC_PINATA_API_KEY;
 const getApiSecret = () => process.env.NEXT_PUBLIC_PINATA_API_SECRET;
+const getPinataGateway = () => process.env.NEXT_PUBLIC_PINATA_GATEWAY || "gateway.pinata.cloud";
 
 export interface SongMetadata {
   name: string;
@@ -178,7 +179,8 @@ export function ipfsToHttp(ipfsUri: string): string {
   if (!ipfsUri) return "";
   if (ipfsUri.startsWith("ipfs://")) {
     const cid = ipfsUri.replace("ipfs://", "");
-    return `https://gateway.pinata.cloud/ipfs/${cid}`;
+    const gateway = getPinataGateway();
+    return `https://${gateway}/ipfs/${cid}`;
   }
   return ipfsUri;
 }
@@ -290,9 +292,53 @@ export async function uploadAlbumToPinata(params: {
   return `ipfs://${data.IpfsHash}`;
 }
 
-// Fetch album metadata
-export async function fetchAlbumMetadata(albumAddress: string): Promise<AlbumMetadata | null> {
-  const uri = getAlbumMetadataUri(albumAddress);
+// Search Pinata for album metadata by name
+async function searchPinataForAlbumMetadata(albumName: string): Promise<string | null> {
+  const apiKey = getApiKey();
+  const apiSecret = getApiSecret();
+
+  if (!apiKey || !apiSecret) return null;
+
+  try {
+    // Search for pins with matching name pattern
+    const searchName = `${albumName}-album-metadata.json`;
+    const response = await fetch(
+      `${PINATA_API_URL}/data/pinList?metadata[name]=${encodeURIComponent(searchName)}&status=pinned`,
+      {
+        headers: {
+          pinata_api_key: apiKey,
+          pinata_secret_api_key: apiSecret,
+        },
+      }
+    );
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (data.rows && data.rows.length > 0) {
+      // Return the first matching pin's IPFS hash
+      return `ipfs://${data.rows[0].ipfs_pin_hash}`;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Fetch album metadata - tries cache first, then searches Pinata
+export async function fetchAlbumMetadata(albumAddress: string, albumName?: string): Promise<AlbumMetadata | null> {
+  // Try cache first
+  let uri = getAlbumMetadataUri(albumAddress);
+
+  // If not in cache and we have an album name, search Pinata
+  if (!uri && albumName) {
+    uri = await searchPinataForAlbumMetadata(albumName);
+    // Cache it for future use
+    if (uri) {
+      setAlbumMetadataCache(albumAddress, uri);
+    }
+  }
+
   if (!uri) return null;
 
   try {

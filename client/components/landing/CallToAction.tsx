@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 
 function CallToAction() {
   return (
-    <section className="py-24 relative overflow-hidden border-t border-border/30">
+    <section className="py-24 relative overflow-hidden border-t border-border/30 text-white">
       {/* Background elements */}
       <motion.div
         initial={{ opacity: 0, scale: 0.5 }}
@@ -25,7 +25,7 @@ function CallToAction() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="max-w-4xl mx-auto bg-zinc-900/80 border border-border/50 rounded-3xl p-8 md:p-12 lg:p-16 text-center backdrop-blur-sm"
+          className="max-w-4xl mx-auto bg-[#28282B] border border-border/50 rounded-3xl p-8 md:p-12 lg:p-16 text-center backdrop-blur-sm"
         >
           {/* Badge */}
           <motion.div

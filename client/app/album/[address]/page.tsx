@@ -51,8 +51,8 @@ function AlbumPage() {
     async function fetchCover() {
       if (!album) return;
 
-      // Try album metadata first
-      const albumMeta = await fetchAlbumMetadata(album.address);
+      // Try album metadata first (from cache or search Pinata)
+      const albumMeta = await fetchAlbumMetadata(album.address, album.name);
       if (albumMeta?.image) {
         setAlbumCover(ipfsToHttp(albumMeta.image));
         return;

@@ -75,8 +75,8 @@ function FeaturedAlbums() {
         albums.map(async (album) => {
           let coverImage: string | null = null;
 
-          // Try to get album metadata from cache
-          const albumMetadata = await fetchAlbumMetadata(album.address);
+          // Try to get album metadata (from cache or search Pinata)
+          const albumMetadata = await fetchAlbumMetadata(album.address, album.name);
           if (albumMetadata?.image) {
             coverImage = ipfsToHttp(albumMetadata.image);
           }

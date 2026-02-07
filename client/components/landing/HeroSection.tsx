@@ -167,7 +167,7 @@ function HeroSection() {
             </motion.div>
 
             {/* Stats */}
-            <motion.div
+            {/* <motion.div
               variants={fadeInUp}
               initial="hidden"
               animate="visible"
@@ -193,7 +193,7 @@ function HeroSection() {
                   </motion.div>
                 </React.Fragment>
               ))}
-            </motion.div>
+            </motion.div> */}
           </div>
 
           {/* Right: Visual Element */}

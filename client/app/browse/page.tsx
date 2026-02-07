@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useGetAlbums, useSearchAlbums } from "@/hooks";
-import { fetchMetadataFromIPFS, ipfsToHttp, fetchAlbumMetadata } from "@/lib/pinata";
+import {
+  fetchMetadataFromIPFS,
+  ipfsToHttp,
+  fetchAlbumMetadata,
+} from "@/lib/pinata";
 import AlbumFilter from "@/components/album/AlbumFilter";
 import { Card } from "@/components/ui/card";
 import { Play, Music2, Loader2, Disc3 } from "lucide-react";
@@ -40,12 +44,17 @@ function formatAddress(address: string): string {
 
 function BrowsePage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [albumsWithCovers, setAlbumsWithCovers] = useState<AlbumWithCover[]>([]);
+  const [albumsWithCovers, setAlbumsWithCovers] = useState<AlbumWithCover[]>(
+    [],
+  );
   const [loadingCovers, setLoadingCovers] = useState(false);
 
   // Fetch albums from subgraph
   const { albums, isLoading, error } = useGetAlbums(50, 0);
-  const { albums: searchResults, isLoading: isSearching } = useSearchAlbums(searchQuery, 50);
+  const { albums: searchResults, isLoading: isSearching } = useSearchAlbums(
+    searchQuery,
+    50,
+  );
 
   // Use search results if searching, otherwise use all albums
   const displayAlbums = searchQuery.length >= 2 ? searchResults : albums;
@@ -64,8 +73,8 @@ function BrowsePage() {
         displayAlbums.map(async (album) => {
           let coverImage: string | null = null;
 
-          // Try to get album metadata from cache
-          const albumMetadata = await fetchAlbumMetadata(album.address);
+          // Try to get album metadata (from cache or search Pinata)
+          const albumMetadata = await fetchAlbumMetadata(album.address, album.name);
           if (albumMetadata?.image) {
             coverImage = ipfsToHttp(albumMetadata.image);
           }
@@ -89,7 +98,7 @@ function BrowsePage() {
             songCount: parseInt(album.totalSongs) || 0,
             gradient: getGradientFromAddress(album.address),
           };
-        })
+        }),
       );
 
       setAlbumsWithCovers(albumsData);
@@ -122,7 +131,9 @@ function BrowsePage() {
       {/* Error State */}
       {error && (
         <div className="text-center py-20">
-          <p className="text-red-500">Failed to load albums. Please try again.</p>
+          <p className="text-red-500">
+            Failed to load albums. Please try again.
+          </p>
         </div>
       )}
 

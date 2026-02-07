@@ -14,6 +14,7 @@ import StatsCards from "@/components/dashboard/StatsCards";
 import { useState, useEffect } from "react";
 import { Disc, Music, Wallet, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fetchAlbumMetadata, ipfsToHttp } from "@/lib/pinata";
 
 function ArtistDashboardPage() {
   const { address, isConnected } = useAccount();
@@ -25,6 +26,7 @@ function ArtistDashboardPage() {
     name: string;
     address: string;
   } | null>(null);
+  const [albumCovers, setAlbumCovers] = useState<Record<string, string>>({});
 
   // Fetch real data from The Graph
   const {
@@ -50,6 +52,25 @@ function ArtistDashboardPage() {
       return () => clearTimeout(timer);
     }
   }, [isSuccess, refetchAlbums, refetchArtist]);
+
+  // Fetch album covers from IPFS
+  useEffect(() => {
+    async function fetchCovers() {
+      if (!albums || albums.length === 0) return;
+
+      const covers: Record<string, string> = {};
+      await Promise.all(
+        albums.map(async (album) => {
+          const metadata = await fetchAlbumMetadata(album.address, album.name);
+          if (metadata?.image) {
+            covers[album.address] = ipfsToHttp(metadata.image);
+          }
+        })
+      );
+      setAlbumCovers(covers);
+    }
+    fetchCovers();
+  }, [albums]);
 
   if (!isConnected) {
     return (
@@ -168,7 +189,7 @@ function ArtistDashboardPage() {
                 key={album.id}
                 address={album.address}
                 name={album.name}
-                coverImage="/placeholder.jpg"
+                coverImage={albumCovers[album.address] || null}
                 songCount={parseInt(album.totalSongs || "0")}
                 onAddSong={() => openAddSongDialog(album.name, album.address)}
               />
