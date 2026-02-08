@@ -1,7 +1,7 @@
 "use client";
 
 import { usePlayer } from "@/contexts/PlayerContext";
-import { ipfsToHttp } from "@/lib/pinata";
+import { ipfsToHttp, isValidIpfsUri } from "@/lib/pinata";
 import {
   Play,
   Pause,
@@ -29,7 +29,11 @@ function formatTime(seconds: number): string {
 }
 
 // Generate vibrant gradient colors from album address
-function getGradientColors(address: string): { from: string; to: string; accent: string } {
+function getGradientColors(address: string): {
+  from: string;
+  to: string;
+  accent: string;
+} {
   const gradients = [
     { from: "#8B5CF6", to: "#EC4899", accent: "#A855F7" }, // Purple to Pink
     { from: "#06B6D4", to: "#3B82F6", accent: "#0EA5E9" }, // Cyan to Blue
@@ -73,7 +77,10 @@ export function MusicPlayer() {
   // Don't render if no song is loaded
   if (!currentSong || !gradientColors) return null;
 
-  const coverImage = metadata?.image ? ipfsToHttp(metadata.image) : null;
+  // Only use image if it's a valid IPFS URI
+  const coverImage = metadata?.image && isValidIpfsUri(metadata.image)
+    ? ipfsToHttp(metadata.image)
+    : null;
   const songName = metadata?.name || "Loading...";
   const hasNext = queueIndex < queue.length - 1;
   const hasPrev = queueIndex > 0 || currentTime > 3;
@@ -112,7 +119,7 @@ export function MusicPlayer() {
         }}
       />
 
-      <div className="relative container max-w-screen-xl mx-auto">
+      <div className="relative container max-w-7xl mx-auto">
         {/* Progress bar - Interactive */}
         <div
           className="h-1.5 bg-zinc-800/50 -mt-px cursor-pointer group relative overflow-hidden"
@@ -138,7 +145,9 @@ export function MusicPlayer() {
             {/* Glowing edge */}
             <div
               className={`absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full transition-all duration-200 ${
-                isHoveringProgress ? "opacity-100 scale-100" : "opacity-0 scale-0"
+                isHoveringProgress
+                  ? "opacity-100 scale-100"
+                  : "opacity-0 scale-0"
               }`}
               style={{
                 background: gradientColors.accent,
@@ -150,9 +159,9 @@ export function MusicPlayer() {
 
         <div className="flex items-center gap-4 py-3 px-4">
           {/* Song Info */}
-          <div className="flex items-center gap-3 flex-1 min-w-0 max-w-[280px]">
+          <div className="flex items-center gap-3 flex-1 min-w-0 max-w-70">
             {/* Cover with glow */}
-            <div className="relative flex-shrink-0 group">
+            <div className="relative shrink-0 group">
               <div
                 className="absolute inset-0 rounded-lg blur-lg opacity-50 transition-opacity group-hover:opacity-70"
                 style={{
@@ -339,9 +348,12 @@ export function MusicPlayer() {
       {/* Queue Panel (when expanded) */}
       {showQueue && queue.length > 1 && (
         <div className="absolute bottom-full left-0 right-0 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800/50 max-h-64 overflow-y-auto">
-          <div className="container max-w-screen-xl mx-auto p-4">
+          <div className="container max-w-7xl mx-auto p-4">
             <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <ListMusic className="w-4 h-4" style={{ color: gradientColors.accent }} />
+              <ListMusic
+                className="w-4 h-4"
+                style={{ color: gradientColors.accent }}
+              />
               Queue ({queue.length} songs)
             </h3>
             <div className="space-y-1">
@@ -356,15 +368,25 @@ export function MusicPlayer() {
                 >
                   <span
                     className="w-5 text-center text-xs font-mono"
-                    style={index === queueIndex ? { color: gradientColors.accent } : { color: "#71717a" }}
+                    style={
+                      index === queueIndex
+                        ? { color: gradientColors.accent }
+                        : { color: "#71717a" }
+                    }
                   >
                     {index === queueIndex ? "▶" : index + 1}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm truncate ${index === queueIndex ? "text-white font-medium" : "text-zinc-300"}`}>
-                      {song.id.split("-")[1] ? `Song #${song.tokenId}` : song.tokenId}
+                    <p
+                      className={`text-sm truncate ${index === queueIndex ? "text-white font-medium" : "text-zinc-300"}`}
+                    >
+                      {song.id.split("-")[1]
+                        ? `Song #${song.tokenId}`
+                        : song.tokenId}
                     </p>
-                    <p className="text-xs text-zinc-500 truncate">{song.albumName}</p>
+                    <p className="text-xs text-zinc-500 truncate">
+                      {song.albumName}
+                    </p>
                   </div>
                 </div>
               ))}

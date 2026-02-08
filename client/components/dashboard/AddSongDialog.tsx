@@ -11,7 +11,7 @@ import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useMintSong } from "@/hooks/useMintSong";
-import { uploadSongToPinata } from "@/lib/pinata";
+import { uploadSongToPinata, fetchAlbumMetadata } from "@/lib/pinata";
 import {
   Music,
   Loader2,
@@ -19,7 +19,6 @@ import {
   XCircle,
   ExternalLink,
   Upload,
-  Image as ImageIcon,
   FileAudio,
   X,
 } from "lucide-react";
@@ -48,17 +47,15 @@ function AddSongDialog({
   const [description, setDescription] = useState("");
   const [genre, setGenre] = useState("");
   const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   // Upload state
   const [uploadStep, setUploadStep] = useState<UploadStep>("idle");
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [metadataUri, setMetadataUri] = useState<string | null>(null);
+  const [albumCoverUri, setAlbumCoverUri] = useState<string | null>(null);
 
   // Refs for file inputs
   const audioInputRef = useRef<HTMLInputElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
 
   // Mint hook
   const {
@@ -71,30 +68,30 @@ function AddSongDialog({
     reset: resetMint,
   } = useMintSong(albumAddress);
 
-  // Reset form function - defined early so it can be used in effects
+  // Reset form function
   const resetForm = () => {
     setSongName("");
     setDescription("");
     setGenre("");
     setAudioFile(null);
-    setCoverImage(null);
-    setCoverPreview(null);
     setUploadStep("idle");
     setUploadError(null);
     setMetadataUri(null);
     resetMint();
   };
 
-  // Handle cover image preview
+  // Fetch album cover when dialog opens
   useEffect(() => {
-    if (coverImage) {
-      const url = URL.createObjectURL(coverImage);
-      setCoverPreview(url);
-      return () => URL.revokeObjectURL(url);
-    } else {
-      setCoverPreview(null);
+    async function fetchAlbumCover() {
+      if (open && albumAddress && albumName) {
+        const metadata = await fetchAlbumMetadata(albumAddress, albumName);
+        if (metadata?.image) {
+          setAlbumCoverUri(metadata.image);
+        }
+      }
     }
-  }, [coverImage]);
+    fetchAlbumCover();
+  }, [open, albumAddress, albumName]);
 
   // Auto-mint after upload completes
   useEffect(() => {
@@ -114,7 +111,7 @@ function AddSongDialog({
       }, 3000);
       return () => clearTimeout(timer);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMintSuccess, onSuccess]);
 
   // Handle mint error
@@ -125,8 +122,8 @@ function AddSongDialog({
         mintError.message?.includes("User rejected")
           ? "Transaction rejected by user"
           : mintError.message?.includes("OwnableUnauthorizedAccount")
-          ? "You are not the owner of this album"
-          : "Failed to mint song"
+            ? "You are not the owner of this album"
+            : "Failed to mint song",
       );
     }
   }, [mintError]);
@@ -145,13 +142,6 @@ function AddSongDialog({
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCoverImage(file);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -163,7 +153,7 @@ function AddSongDialog({
     try {
       const uri = await uploadSongToPinata({
         audioFile,
-        coverImage: coverImage || undefined,
+        albumCoverUri: albumCoverUri || undefined, // Always use album cover
         name: songName,
         description: description || `${songName} from ${albumName}`,
         artistName,
@@ -175,13 +165,14 @@ function AddSongDialog({
     } catch (err) {
       setUploadStep("error");
       setUploadError(
-        err instanceof Error ? err.message : "Failed to upload to IPFS"
+        err instanceof Error ? err.message : "Failed to upload to IPFS",
       );
     }
   };
 
   const isLoading = uploadStep === "uploading" || isPending || isConfirming;
-  const canSubmit = songName && audioFile && !isLoading && uploadStep !== "success";
+  const canSubmit =
+    songName && audioFile && !isLoading && uploadStep !== "success";
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -192,7 +183,7 @@ function AddSongDialog({
             Add Song to {albumName}
           </DialogTitle>
           <DialogDescription className="text-zinc-400">
-            Upload your song and cover art. Files will be stored on IPFS via Pinata.
+            Upload your song. The album cover will be used automatically.
           </DialogDescription>
         </DialogHeader>
 
@@ -257,7 +248,9 @@ function AddSongDialog({
               <div className="flex items-center gap-3 p-3 bg-zinc-800 border border-zinc-700 rounded-lg">
                 <FileAudio className="w-8 h-8 text-primary" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{audioFile.name}</p>
+                  <p className="text-sm font-medium truncate">
+                    {audioFile.name}
+                  </p>
                   <p className="text-xs text-zinc-500">
                     {(audioFile.size / (1024 * 1024)).toFixed(2)} MB
                   </p>
@@ -284,56 +277,9 @@ function AddSongDialog({
                 <div className="flex flex-col items-center gap-1">
                   <Upload className="w-6 h-6" />
                   <span className="text-sm">Click to upload audio file</span>
-                  <span className="text-xs text-zinc-500">MP3, WAV, FLAC, etc.</span>
-                </div>
-              </Button>
-            )}
-          </div>
-
-          {/* Cover Image Upload */}
-          <div>
-            <label className="text-sm font-medium mb-2 block text-zinc-300">
-              Cover Image <span className="text-zinc-500">(optional)</span>
-            </label>
-            <input
-              type="file"
-              ref={imageInputRef}
-              onChange={handleImageChange}
-              accept="image/*"
-              className="hidden"
-              disabled={isLoading}
-              aria-label="Upload cover image"
-            />
-            {coverPreview ? (
-              <div className="relative w-32 h-32">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={coverPreview}
-                  alt="Cover preview"
-                  className="w-full h-full object-cover rounded-lg"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setCoverImage(null)}
-                  disabled={isLoading}
-                  className="absolute -top-2 -right-2 w-6 h-6 p-0 bg-zinc-800 rounded-full text-zinc-400 hover:text-white"
-                >
-                  <X className="w-3 h-3" />
-                </Button>
-              </div>
-            ) : (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => imageInputRef.current?.click()}
-                disabled={isLoading}
-                className="w-32 h-32 bg-transparent border-zinc-700 border-dashed text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-primary"
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <ImageIcon className="w-6 h-6" />
-                  <span className="text-xs">Add cover</span>
+                  <span className="text-xs text-zinc-500">
+                    MP3, WAV, FLAC, etc.
+                  </span>
                 </div>
               </Button>
             )}

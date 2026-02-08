@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useGetAlbum } from "@/hooks";
 import { usePlayer, PlayableSong } from "@/contexts/PlayerContext";
-import { fetchMetadataFromIPFS, ipfsToHttp, fetchAlbumMetadata, SongMetadata } from "@/lib/pinata";
+import {
+  fetchMetadataFromIPFS,
+  ipfsToHttp,
+  fetchAlbumMetadata,
+  SongMetadata,
+} from "@/lib/pinata";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Music2, Loader2, ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -40,9 +45,12 @@ function AlbumPage() {
   const address = params?.address as string;
 
   const { album, isLoading, error } = useGetAlbum(address);
-  const { playSong, playQueue, currentSong, isPlaying, togglePlay } = usePlayer();
+  const { playSong, playQueue, currentSong, isPlaying, togglePlay } =
+    usePlayer();
 
-  const [songsWithMetadata, setSongsWithMetadata] = useState<SongWithMetadata[]>([]);
+  const [songsWithMetadata, setSongsWithMetadata] = useState<
+    SongWithMetadata[]
+  >([]);
   const [albumCover, setAlbumCover] = useState<string | null>(null);
   const [loadingSongs, setLoadingSongs] = useState(false);
 
@@ -96,7 +104,7 @@ function AlbumPage() {
             metadata,
             isLoading: false,
           };
-        })
+        }),
       );
 
       setSongsWithMetadata(songsData);
@@ -136,7 +144,8 @@ function AlbumPage() {
     playQueue(playableSongs, 0);
   };
 
-  const isCurrentAlbumPlaying = currentSong?.albumAddress === address && isPlaying;
+  const isCurrentAlbumPlaying =
+    currentSong?.albumAddress === address && isPlaying;
 
   // Loading state
   if (isLoading) {
@@ -180,7 +189,9 @@ function AlbumPage() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+            <div
+              className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}
+            >
               <Music2 className="w-20 h-20 text-white/30" />
             </div>
           )}
@@ -260,7 +271,7 @@ function AlbumPage() {
             {songsWithMetadata.map((song, index) => {
               const isCurrentSong = currentSong?.id === song.id;
               const songName = song.metadata?.name || `Song #${song.tokenId}`;
-              const songCover = song.metadata?.image ? ipfsToHttp(song.metadata.image) : null;
+              // const songCover = song.metadata?.image ? ipfsToHttp(song.metadata.image) : null;
 
               return (
                 <div
@@ -290,30 +301,18 @@ function AlbumPage() {
 
                   {/* Song Info */}
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    {/* Mini Cover */}
-                    <div className="w-10 h-10 rounded overflow-hidden bg-muted flex-shrink-0">
-                      {songCover ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={songCover}
-                          alt={songName}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-                          <Music2 className="w-4 h-4 text-white/50" />
-                        </div>
-                      )}
-                    </div>
-
                     {/* Title */}
                     <div className="min-w-0">
-                      <p className={`font-medium truncate ${isCurrentSong ? "text-primary" : ""}`}>
+                      <p
+                        className={`font-medium truncate ${isCurrentSong ? "text-primary" : ""}`}
+                      >
                         {songName}
                       </p>
                       {song.metadata?.attributes && (
                         <p className="text-xs text-muted-foreground truncate">
-                          {song.metadata.attributes.find(a => a.trait_type === "Genre")?.value || ""}
+                          {song.metadata.attributes.find(
+                            (a) => a.trait_type === "Genre",
+                          )?.value || ""}
                         </p>
                       )}
                     </div>

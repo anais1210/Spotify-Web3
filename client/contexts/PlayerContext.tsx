@@ -1,7 +1,20 @@
 "use client";
 
-import { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
-import { SongMetadata, fetchMetadataFromIPFS, ipfsToHttp } from "@/lib/pinata";
+import {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+  ReactNode,
+} from "react";
+import {
+  SongMetadata,
+  fetchMetadataFromIPFS,
+  fetchAlbumMetadata,
+  ipfsToHttp,
+  isValidIpfsUri,
+} from "@/lib/pinata";
 
 export interface PlayableSong {
   id: string;
@@ -129,6 +142,21 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       const metadata = await fetchMetadataFromIPFS(song.uri);
       if (!metadata) {
         throw new Error("Failed to load song metadata");
+      }
+
+      // If song doesn't have a valid image, try to get album cover
+      const hasValidImage = isValidIpfsUri(metadata.image);
+      if (!hasValidImage && song.albumAddress && song.albumName) {
+        const albumMeta = await fetchAlbumMetadata(
+          song.albumAddress,
+          song.albumName,
+        );
+        if (albumMeta?.image && isValidIpfsUri(albumMeta.image)) {
+          metadata.image = albumMeta.image;
+        } else {
+          console.log("[Player] No valid album cover found");
+          metadata.image = ""; // Clear invalid image
+        }
       }
 
       setState((prev) => ({ ...prev, metadata }));

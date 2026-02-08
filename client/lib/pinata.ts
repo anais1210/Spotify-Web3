@@ -6,7 +6,8 @@ const PINATA_API_URL = "https://api.pinata.cloud";
 // Get API keys from environment variables
 const getApiKey = () => process.env.NEXT_PUBLIC_PINATA_API_KEY;
 const getApiSecret = () => process.env.NEXT_PUBLIC_PINATA_API_SECRET;
-const getPinataGateway = () => process.env.NEXT_PUBLIC_PINATA_GATEWAY || "gateway.pinata.cloud";
+const getPinataGateway = () =>
+  process.env.NEXT_PUBLIC_PINATA_GATEWAY || "gateway.pinata.cloud";
 
 export interface SongMetadata {
   name: string;
@@ -29,14 +30,14 @@ export interface PinataResponse {
 // Upload a file to Pinata
 export async function uploadFileToPinata(
   file: File,
-  name?: string
+  name?: string,
 ): Promise<string> {
   const apiKey = getApiKey();
   const apiSecret = getApiSecret();
 
   if (!apiKey || !apiSecret) {
     throw new Error(
-      "Pinata API keys not configured. Please set NEXT_PUBLIC_PINATA_API_KEY and NEXT_PUBLIC_PINATA_API_SECRET in your .env.local file."
+      "Pinata API keys not configured. Please set NEXT_PUBLIC_PINATA_API_KEY and NEXT_PUBLIC_PINATA_API_SECRET in your .env.local file.",
     );
   }
 
@@ -74,14 +75,14 @@ export async function uploadFileToPinata(
 // Upload JSON metadata to Pinata
 export async function uploadMetadataToPinata(
   metadata: SongMetadata,
-  name: string
+  name: string,
 ): Promise<string> {
   const apiKey = getApiKey();
   const apiSecret = getApiSecret();
 
   if (!apiKey || !apiSecret) {
     throw new Error(
-      "Pinata API keys not configured. Please set NEXT_PUBLIC_PINATA_API_KEY and NEXT_PUBLIC_PINATA_API_SECRET in your .env.local file."
+      "Pinata API keys not configured. Please set NEXT_PUBLIC_PINATA_API_KEY and NEXT_PUBLIC_PINATA_API_SECRET in your .env.local file.",
     );
   }
 
@@ -112,10 +113,11 @@ export async function uploadMetadataToPinata(
   return `ipfs://${data.IpfsHash}`;
 }
 
-// Full upload flow: audio file -> cover image -> metadata -> return metadata URI
+// Full upload flow: audio file -> metadata -> return metadata URI
+// Songs always use the album's cover image
 export async function uploadSongToPinata(params: {
   audioFile: File;
-  coverImage?: File;
+  albumCoverUri?: string; // IPFS URI of album cover
   name: string;
   description: string;
   artistName?: string;
@@ -125,7 +127,7 @@ export async function uploadSongToPinata(params: {
 }): Promise<string> {
   const {
     audioFile,
-    coverImage,
+    albumCoverUri,
     name,
     description,
     artistName,
@@ -137,11 +139,8 @@ export async function uploadSongToPinata(params: {
   // 1. Upload audio file
   const audioUri = await uploadFileToPinata(audioFile, `${name}-audio`);
 
-  // 2. Upload cover image if provided
-  let imageUri = "";
-  if (coverImage) {
-    imageUri = await uploadFileToPinata(coverImage, `${name}-cover`);
-  }
+  // 2. Use album cover for song image
+  const imageUri = albumCoverUri || "";
 
   // 3. Build attributes array
   const attributes: { trait_type: string; value: string | number }[] = [];
@@ -163,7 +162,7 @@ export async function uploadSongToPinata(params: {
   const metadata: SongMetadata = {
     name,
     description,
-    image: imageUri || "ipfs://QmdefaultImageHash", // Default placeholder if no image
+    image: imageUri, // Uses song cover, album cover, or empty
     animation_url: audioUri,
     attributes,
   };
@@ -174,19 +173,36 @@ export async function uploadSongToPinata(params: {
   return metadataUri;
 }
 
+// Validate IPFS URI has a valid CID (basic check)
+export function isValidIpfsUri(uri: string): boolean {
+  if (!uri || typeof uri !== "string") return false;
+  if (!uri.startsWith("ipfs://")) return false;
+  const cid = uri.replace("ipfs://", "").trim();
+  // CID should be at least 46 characters (CIDv0) or start with 'b' for CIDv1
+  return cid.length >= 46 || (cid.startsWith("b") && cid.length >= 32);
+}
+
 // Convert IPFS URI to HTTP gateway URL for display
 export function ipfsToHttp(ipfsUri: string): string {
   if (!ipfsUri) return "";
   if (ipfsUri.startsWith("ipfs://")) {
-    const cid = ipfsUri.replace("ipfs://", "");
+    const cid = ipfsUri.replace("ipfs://", "").trim();
+    // Don't return a URL if the CID is empty or too short
+    if (!cid || cid.length < 32) {
+      console.warn("[Pinata] Invalid CID (too short):", cid);
+      return "";
+    }
     const gateway = getPinataGateway();
-    return `https://${gateway}/ipfs/${cid}`;
+    const url = `https://${gateway}/ipfs/${cid}`;
+    return url;
   }
   return ipfsUri;
 }
 
 // Fetch metadata from IPFS
-export async function fetchMetadataFromIPFS(uri: string): Promise<SongMetadata | null> {
+export async function fetchMetadataFromIPFS(
+  uri: string,
+): Promise<SongMetadata | null> {
   try {
     const httpUrl = ipfsToHttp(uri);
     const response = await fetch(httpUrl);
@@ -210,7 +226,10 @@ export function getAlbumMetadataCache(): Record<string, string> {
   }
 }
 
-export function setAlbumMetadataCache(albumAddress: string, metadataUri: string): void {
+export function setAlbumMetadataCache(
+  albumAddress: string,
+  metadataUri: string,
+): void {
   if (typeof window === "undefined") return;
   try {
     const cache = getAlbumMetadataCache();
@@ -293,7 +312,9 @@ export async function uploadAlbumToPinata(params: {
 }
 
 // Search Pinata for album metadata by name
-async function searchPinataForAlbumMetadata(albumName: string): Promise<string | null> {
+async function searchPinataForAlbumMetadata(
+  albumName: string,
+): Promise<string | null> {
   const apiKey = getApiKey();
   const apiSecret = getApiSecret();
 
@@ -309,7 +330,7 @@ async function searchPinataForAlbumMetadata(albumName: string): Promise<string |
           pinata_api_key: apiKey,
           pinata_secret_api_key: apiSecret,
         },
-      }
+      },
     );
 
     if (!response.ok) return null;
@@ -326,7 +347,10 @@ async function searchPinataForAlbumMetadata(albumName: string): Promise<string |
 }
 
 // Fetch album metadata - tries cache first, then searches Pinata
-export async function fetchAlbumMetadata(albumAddress: string, albumName?: string): Promise<AlbumMetadata | null> {
+export async function fetchAlbumMetadata(
+  albumAddress: string,
+  albumName?: string,
+): Promise<AlbumMetadata | null> {
   // Try cache first
   let uri = getAlbumMetadataUri(albumAddress);
 
@@ -339,14 +363,19 @@ export async function fetchAlbumMetadata(albumAddress: string, albumName?: strin
     }
   }
 
-  if (!uri) return null;
+  if (!uri) {
+    return null;
+  }
 
   try {
     const httpUrl = ipfsToHttp(uri);
     const response = await fetch(httpUrl);
-    if (!response.ok) return null;
-    return await response.json();
-  } catch {
+    if (!response.ok) {
+      return null;
+    }
+    const metadata = await response.json();
+    return metadata;
+  } catch (error) {
     return null;
   }
 }

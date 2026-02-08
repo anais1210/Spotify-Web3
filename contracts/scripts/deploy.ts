@@ -20,7 +20,6 @@ async function deployContract(
   // Get properly typed contract instance
   const contract = await ethers.getContractAt(contractName, contractAddress);
 
-  console.log(`${contractName} contract deployed to:`, contractAddress);
   return { contract, contractAddress };
 }
 async function main() {
@@ -32,7 +31,6 @@ async function main() {
 
   if (artistAddress) {
     await management.addArtist(artistAddress);
-    console.log("Added artist address: ", artistAddress);
   } else {
     console.log("No ARTIST_ADDRESS in .env - skipping artist addition");
   }
