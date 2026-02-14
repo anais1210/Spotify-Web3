@@ -5,7 +5,11 @@ import Link from "next/link";
 import { Play, Music2, ArrowRight, Loader2, Disc3 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useGetAlbums } from "@/hooks";
-import { fetchMetadataFromIPFS, ipfsToHttp, fetchAlbumMetadata } from "@/lib/pinata";
+import {
+  fetchMetadataFromIPFS,
+  ipfsToHttp,
+  fetchAlbumMetadata,
+} from "@/lib/pinata";
 
 interface AlbumDisplay {
   id: string;
@@ -76,7 +80,10 @@ function FeaturedAlbums() {
           let coverImage: string | null = null;
 
           // Try to get album metadata (from cache or search Pinata)
-          const albumMetadata = await fetchAlbumMetadata(album.address, album.name);
+          const albumMetadata = await fetchAlbumMetadata(
+            album.address,
+            album.name,
+          );
           if (albumMetadata?.image) {
             coverImage = ipfsToHttp(albumMetadata.image);
           }
@@ -100,7 +107,7 @@ function FeaturedAlbums() {
             gradient: getGradientFromAddress(album.address),
             coverImage,
           };
-        })
+        }),
       );
 
       setDisplayAlbums(albumsData);
@@ -112,17 +119,24 @@ function FeaturedAlbums() {
   // Don't render section if no albums
   if (!isLoading && displayAlbums.length === 0) {
     return (
-      <section className="py-24 border-t border-border/30">
+      <section className="py-24">
+        {/* Centered separator line */}
+        <div className="flex justify-center mb-12">
+          <div className="section-divider w-80"></div>
+        </div>
+
         <div className="container">
-          <div className="text-center py-12">
+          <div className="glass-card rounded-2xl p-10 max-w-xl mx-auto text-center">
             <Disc3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-2xl font-heading font-bold mb-2">No Albums Yet</h2>
+            <h2 className="text-2xl font-heading font-bold mb-2">
+              No Albums Yet
+            </h2>
             <p className="text-muted-foreground mb-6">
               Be the first artist to publish music on the platform!
             </p>
             <Link
               href="/artist/dashboard"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full lux-button transition-all"
             >
               Start Creating
               <ArrowRight className="w-4 h-4" />
@@ -134,7 +148,12 @@ function FeaturedAlbums() {
   }
 
   return (
-    <section className="py-24 border-t border-border/30">
+    <section className="py-24">
+      {/* Centered separator line */}
+      <div className="flex justify-center mb-12">
+        <div className="section-divider w-80"></div>
+      </div>
+
       <div className="container">
         {/* Header */}
         <motion.div
@@ -150,11 +169,13 @@ function FeaturedAlbums() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-primary text-sm font-medium uppercase tracking-wider mb-2"
+              className="text-primary text-sm font-medium uppercase tracking-[0.25em] mb-2"
             >
               Latest Releases
             </motion.p>
-            <h2 className="text-3xl md:text-4xl font-heading font-bold">Featured Albums</h2>
+            <h2 className="text-3xl md:text-4xl font-heading font-bold">
+              Featured Albums
+            </h2>
           </div>
           <Link
             href="/browse"
@@ -185,12 +206,14 @@ function FeaturedAlbums() {
               <motion.div key={album.id} variants={itemVariants}>
                 <Link href={`/album/${album.address}`}>
                   <motion.div
-                    className="group cursor-pointer"
+                    className="group cursor-pointer glass-card rounded-2xl p-3 transition-all duration-300 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)]"
                     whileHover={{ y: -8 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   >
                     {/* Album cover */}
-                    <div className={`aspect-square rounded-xl overflow-hidden relative mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-primary/10 transition-shadow duration-300 ${!album.coverImage ? `bg-gradient-to-br ${album.gradient}` : ''}`}>
+                    <div
+                      className={`aspect-square rounded-xl overflow-hidden relative mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-primary/10 transition-shadow duration-300 ${!album.coverImage ? `bg-gradient-to-br ${album.gradient}` : ""}`}
+                    >
                       {album.coverImage ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -209,7 +232,7 @@ function FeaturedAlbums() {
                       )}
 
                       {/* Play overlay */}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <motion.div
                           initial={{ scale: 0.8, opacity: 0 }}
                           whileHover={{ scale: 1 }}
@@ -224,7 +247,9 @@ function FeaturedAlbums() {
                     <h3 className="font-medium text-sm truncate group-hover:text-primary transition-colors">
                       {album.name}
                     </h3>
-                    <p className="text-xs text-muted-foreground truncate font-mono">{album.artist}</p>
+                    <p className="text-xs text-muted-foreground truncate font-mono">
+                      {album.artist}
+                    </p>
                   </motion.div>
                 </Link>
               </motion.div>

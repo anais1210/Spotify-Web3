@@ -63,13 +63,13 @@ function HeroSection() {
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.5, ease: "easeOut" }}
-        className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px]"
+        className="absolute top-0 left-1/4 w-130 h-130 orb-indigo rounded-full blur-[130px]"
       />
       <motion.div
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.5, delay: 0.3, ease: "easeOut" }}
-        className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-primary/15 rounded-full blur-[100px]"
+        className="absolute bottom-0 right-1/4 w-105 h-105 orb-gold rounded-full blur-[110px]"
       />
 
       <div className="container relative z-10">
@@ -82,14 +82,14 @@ function HeroSection() {
               initial="hidden"
               animate="visible"
               custom={0}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 mb-8"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-pill mb-8"
             >
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
                 className="w-2 h-2 rounded-full bg-primary"
               />
-              <span className="text-primary text-sm font-medium">
+              <span className="text-primary text-sm font-medium tracking-wide">
                 Web3 Music Platform
               </span>
             </motion.div>
@@ -108,7 +108,7 @@ function HeroSection() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
-                className="text-primary inline-block"
+                className="text-gradient-gold inline-block"
               >
                 you love
               </motion.span>
@@ -142,7 +142,7 @@ function HeroSection() {
                 >
                   <Button
                     size="lg"
-                    className="cursor-pointer glow-green text-base px-8 py-6 rounded-full font-medium group hover:brightness-110 hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transition-all duration-300"
+                    className="cursor-pointer lux-button text-base px-8 py-6 rounded-full font-semibold group transition-all duration-300"
                   >
                     <Play className="w-5 h-5 mr-2 fill-current group-hover:scale-110 transition-transform" />
                     Explore Music
@@ -158,42 +158,13 @@ function HeroSection() {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="cursor-pointer text-base px-8 py-6 border-border hover:border-primary hover:bg-primary/10 rounded-full font-medium bg-zinc-900/80 backdrop-blur-sm transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,197,94,0.2)]"
+                    className="cursor-pointer text-base px-8 py-6 rounded-full font-medium lux-button-outline transition-all duration-300"
                   >
                     I&apos;m an Artist
                   </Button>
                 </motion.div>
               </Link>
             </motion.div>
-
-            {/* Stats */}
-            {/* <motion.div
-              variants={fadeInUp}
-              initial="hidden"
-              animate="visible"
-              custom={0.4}
-              className="flex gap-8 md:gap-12"
-            >
-              {[
-                { value: "1K+", label: "Artists" },
-                { value: "50K+", label: "NFTs Minted" },
-                { value: "100", label: "ETH Volume" },
-              ].map((stat, index) => (
-                <React.Fragment key={stat.label}>
-                  {index > 0 && <div className="w-px bg-border/50" />}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                  >
-                    <p className="text-3xl md:text-4xl font-heading font-bold text-white">
-                      {stat.value}
-                    </p>
-                    <p className="text-muted-foreground text-sm">{stat.label}</p>
-                  </motion.div>
-                </React.Fragment>
-              ))}
-            </motion.div> */}
           </div>
 
           {/* Right: Visual Element */}
@@ -226,7 +197,7 @@ function HeroSection() {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-12 rounded-full bg-gradient-to-br from-zinc-900 to-black border border-white/10 shadow-2xl flex items-center justify-center"
+                className="absolute inset-12 rounded-full bg-gradient-to-br from-[#15151f] via-[#0e0e13] to-[#060608] border border-white/10 shadow-2xl flex items-center justify-center"
               >
                 {/* Grooves */}
                 <div className="absolute inset-4 rounded-full border border-white/5" />
@@ -235,17 +206,17 @@ function HeroSection() {
                 <div className="absolute inset-16 rounded-full border border-white/5" />
 
                 {/* Center label */}
-                <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center shadow-lg">
-                  <Disc3 className="w-12 h-12 text-white" />
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#f3dda0] via-[#d1ae66] to-[#b5833d] flex items-center justify-center shadow-lg">
+                  <Disc3 className="w-12 h-12 text-[#1b1408]" />
                 </div>
               </motion.div>
 
               {/* Floating music notes */}
               <motion.div
                 {...floatAnimationReverse}
-                className="absolute -top-4 -right-4 w-16 h-16 rounded-2xl bg-primary/20 backdrop-blur-sm border border-primary/30 flex items-center justify-center"
+                className="absolute -top-4 -right-4 w-16 h-16 rounded-2xl glass-card flex items-center justify-center"
               >
-                <span className="text-2xl">🎵</span>
+                <span className="text-2xl">🎹</span>
               </motion.div>
               <motion.div
                 animate={{
@@ -257,9 +228,9 @@ function HeroSection() {
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="absolute -bottom-4 -left-4 w-14 h-14 rounded-2xl bg-primary/20 backdrop-blur-sm border border-primary/30 flex items-center justify-center"
+                className="absolute -bottom-4 -left-4 w-14 h-14 rounded-2xl glass-card flex items-center justify-center"
               >
-                <span className="text-xl">🎧</span>
+                <span className="text-xl">🎻</span>
               </motion.div>
 
               {/* Extra floating element */}
@@ -274,9 +245,9 @@ function HeroSection() {
                   ease: "easeInOut",
                   delay: 1,
                 }}
-                className="absolute top-1/2 -right-8 w-12 h-12 rounded-xl bg-primary/15 backdrop-blur-sm border border-primary/20 flex items-center justify-center"
+                className="absolute top-1/2 -right-8 w-12 h-12 rounded-xl glass-card flex items-center justify-center"
               >
-                <span className="text-lg">🎶</span>
+                <span className="text-lg">🎧</span>
               </motion.div>
             </motion.div>
           </motion.div>

@@ -4,15 +4,20 @@ import "./globals.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import Web3Provider from "@/components/providers/Web3Provider";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Cormorant_Garamond, Manrope } from "next/font/google";
 import Providers from "./Provider";
 import { PlayerProvider } from "@/contexts/PlayerContext";
 import { MusicPlayer } from "@/components/player";
 
-const inter = Inter({ subsets: ["latin"] });
-const spaceGrotesk = Space_Grotesk({
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-body",
+  weight: ["300", "400", "500", "600", "700"],
+});
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-heading",
+  weight: ["400", "500", "600", "700"],
 });
 
 const metadata: Metadata = {
@@ -27,7 +32,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.className} font-body`}>
+      <body
+        className={`${manrope.className} ${manrope.variable} ${cormorant.variable} font-body`}
+      >
         <Web3Provider>
           <Providers>
             <PlayerProvider>

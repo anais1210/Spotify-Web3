@@ -74,7 +74,10 @@ function BrowsePage() {
           let coverImage: string | null = null;
 
           // Try to get album metadata (from cache or search Pinata)
-          const albumMetadata = await fetchAlbumMetadata(album.address, album.name);
+          const albumMetadata = await fetchAlbumMetadata(
+            album.address,
+            album.name,
+          );
           if (albumMetadata?.image) {
             coverImage = ipfsToHttp(albumMetadata.image);
           }
@@ -167,7 +170,7 @@ function BrowsePage() {
                     />
                   ) : (
                     <div
-                      className={`w-full h-full bg-gradient-to-br ${album.gradient} flex items-center justify-center`}
+                      className={`w-full h-full bg-linear-to-br ${album.gradient} flex items-center justify-center`}
                     >
                       <Music2 className="w-12 h-12 text-white/50" />
                     </div>
